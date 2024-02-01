@@ -1,6 +1,5 @@
-import { useContext } from "react";
 import { AuthToken, User } from "tweeter-shared";
-import { UserInfoContext } from "./UserInfoProvider";
+import useNavigation from "./UseNavigationHook";
 
 interface UserInfoListener {
     currentUser: User | null;
@@ -24,7 +23,7 @@ const useUserInfo = (): UserInfoListener => {
         updateUserInfo,
         clearUserInfo,
         setDisplayedUser,
-    } = useContext(UserInfoContext);
+    } = useNavigation();
 
     return {
         currentUser: currentUser,
