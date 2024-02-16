@@ -1,7 +1,6 @@
 import "./UserInfo.css";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { AuthToken, FakeData, User } from "tweeter-shared";
 import useToastListener from "../toaster/ToastListenerHook";
 import useUserInfo from "./UserInfoHook";
 import {
@@ -39,60 +38,6 @@ const UserInfo = () => {
     };
 
     const [presenter] = useState(new UserInfoPresenter(listener));
-
-    // const setIsFollowerStatus = async (
-    //     authToken: AuthToken,
-    //     currentUser: User,
-    //     displayedUser: User
-    // ) => {
-    //     try {
-    //         if (currentUser === displayedUser) {
-    //             setIsFollower(false);
-    //         } else {
-    //             setIsFollower(
-    //                 await getIsFollowerStatus(
-    //                     authToken!,
-    //                     currentUser!,
-    //                     displayedUser!
-    //                 )
-    //             );
-    //         }
-    //     } catch (error) {
-    //         displayErrorMessage(
-    //             `Failed to determine follower status because of exception: ${error}`
-    //         );
-    //     }
-    // };
-
-    // const setNumbFollowees = async (
-    //     authToken: AuthToken,
-    //     displayedUser: User
-    // ) => {
-    //     try {
-    //         setFolloweesCount(
-    //             await getFolloweesCount(authToken, displayedUser)
-    //         );
-    //     } catch (error) {
-    //         displayErrorMessage(
-    //             `Failed to get followees count because of exception: ${error}`
-    //         );
-    //     }
-    // };
-
-    // const setNumbFollowers = async (
-    //     authToken: AuthToken,
-    //     displayedUser: User
-    // ) => {
-    //     try {
-    //         setFollowersCount(
-    //             await getFollowersCount(authToken, displayedUser)
-    //         );
-    //     } catch (error) {
-    //         displayErrorMessage(
-    //             `Failed to get followers count because of exception: ${error}`
-    //         );
-    //     }
-    // };
 
     const switchToLoggedInUser = (event: React.MouseEvent): void => {
         event.preventDefault();
