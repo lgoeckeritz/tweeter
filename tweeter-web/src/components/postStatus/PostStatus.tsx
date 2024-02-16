@@ -3,7 +3,7 @@ import { useState } from "react";
 import useToastListener from "../toaster/ToastListenerHook";
 import useUserInfo from "../userInfo/UserInfoHook";
 import {
-    PostStatusPreventer,
+    PostStatusPresenter,
     PostStatusView,
 } from "../../presenter/PostStatusPresenter";
 
@@ -25,7 +25,7 @@ const PostStatus = () => {
         clearLastInfoMessage: clearLastInfoMessage,
     };
 
-    const [presenter] = useState(new PostStatusPreventer(listener));
+    const [presenter] = useState(new PostStatusPresenter(listener));
 
     const clearPost = (event: React.MouseEvent) => {
         event.preventDefault();

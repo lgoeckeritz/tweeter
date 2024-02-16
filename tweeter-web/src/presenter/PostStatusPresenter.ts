@@ -7,7 +7,7 @@ export interface PostStatusView {
     clearLastInfoMessage: () => void;
 }
 
-export class PostStatusPreventer {
+export class PostStatusPresenter {
     private service: StatusService;
     private view: PostStatusView;
 
