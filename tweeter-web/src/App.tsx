@@ -17,6 +17,9 @@ import useUserInfo from "./components/userInfo/UserInfoHook";
 import { UserItemView } from "./presenter/UserItemPresenter";
 import { FollowingPresenter } from "./presenter/FollowingPresenter";
 import { FollowersPresenter } from "./presenter/FollowersPresenter";
+import { StatusItemView } from "./presenter/StatusItemPresenter";
+import { FeedPresenter } from "./presenter/FeedPresenter";
+import { StoryPresenter } from "./presenter/StoryPresenter";
 
 const App = () => {
     const { currentUser, authToken } = useUserInfo();
@@ -40,26 +43,6 @@ const App = () => {
 };
 
 const AuthenticatedRoutes = () => {
-    const loadMoreFeedItems = async (
-        authToken: AuthToken,
-        user: User,
-        pageSize: number,
-        lastItem: Status | null
-    ): Promise<[Status[], boolean]> => {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
-    };
-
-    const loadMoreStoryItems = async (
-        authToken: AuthToken,
-        user: User,
-        pageSize: number,
-        lastItem: Status | null
-    ): Promise<[Status[], boolean]> => {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
-    };
-
     return (
         <Routes>
             <Route element={<MainLayout />}>
@@ -68,8 +51,9 @@ const AuthenticatedRoutes = () => {
                     path="feed"
                     element={
                         <StatusItemScroller
-                            loadItems={loadMoreFeedItems}
-                            itemDescription="feed"
+                            presenterGenerator={(view: StatusItemView) =>
+                                new FeedPresenter(view)
+                            }
                         />
                     }
                 />
@@ -77,8 +61,9 @@ const AuthenticatedRoutes = () => {
                     path="story"
                     element={
                         <StatusItemScroller
-                            loadItems={loadMoreStoryItems}
-                            itemDescription="story"
+                            presenterGenerator={(view: StatusItemView) =>
+                                new StoryPresenter(view)
+                            }
                         />
                     }
                 />

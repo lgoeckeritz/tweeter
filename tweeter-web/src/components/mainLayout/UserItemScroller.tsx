@@ -22,9 +22,6 @@ const UserItemScroller = (props: Props) => {
     const itemsReference = useRef(items);
     itemsReference.current = items;
 
-    const addItems = (newItems: User[]) =>
-        setItems([...itemsReference.current, ...newItems]);
-
     const { displayedUser, authToken } = useUserInfo();
 
     // Load initial items
