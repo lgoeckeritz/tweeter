@@ -3,10 +3,11 @@ import "bootstrap/dist/css/bootstrap.css";
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../AuthenticationFormLayout";
-import { AuthToken, FakeData, User } from "tweeter-shared";
+//import { AuthToken, FakeData, User } from "tweeter-shared";
 import useToastListener from "../../toaster/ToastListenerHook";
 import AuthenticationFields from "../AuthenticationFields";
 import useUserInfo from "../../userInfo/UserInfoHook";
+import { LoginPresenter, LoginView } from "../../../presenter/LoginPresenter";
 
 interface Props {
     originalUrl?: string;
@@ -29,36 +30,17 @@ const Login = (props: Props) => {
     };
 
     const doLogin = async () => {
-        try {
-            let [user, authToken] = await login(alias, password);
-
-            updateUserInfo(user, user, authToken, rememberMeRef.current);
-
-            if (!!props.originalUrl) {
-                navigate(props.originalUrl);
-            } else {
-                navigate("/");
-            }
-        } catch (error) {
-            displayErrorMessage(
-                `Failed to log user in because of exception: ${error}`
-            );
-        }
+        presenter.doLogin(alias, password, rememberMeRef, props.originalUrl);
     };
 
-    const login = async (
-        alias: string,
-        password: string
-    ): Promise<[User, AuthToken]> => {
-        // TODO: Replace with the result of calling the server
-        let user = FakeData.instance.firstUser;
-
-        if (user === null) {
-            throw new Error("Invalid alias or password");
-        }
-
-        return [user, FakeData.instance.authToken];
+    const listener: LoginView = {
+        displayErrorMessage: displayErrorMessage,
+        updateUserInfo: updateUserInfo,
+        navigate: navigate,
     };
+
+    //might not need useState but have it just in case
+    const [presenter] = useState(new LoginPresenter(listener));
 
     const inputFieldGenerator = () => {
         return (
