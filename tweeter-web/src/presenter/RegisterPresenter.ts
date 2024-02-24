@@ -2,27 +2,19 @@ import { NavigateFunction } from "react-router-dom";
 import { User, AuthToken } from "tweeter-shared";
 import { UserService } from "../model/service/UserService";
 import { Buffer } from "buffer";
+import { AuthenticationView, Presenter } from "./Presenter";
 
-export interface RegisterView {
-    displayErrorMessage: (message: string) => void;
-    updateUserInfo: (
-        currentUser: User,
-        displayedUser: User | null,
-        authToken: AuthToken,
-        remember: boolean
-    ) => void;
-    navigate: NavigateFunction;
-}
+// export interface RegisterView {
+//     displayErrorMessage: (message: string) => void;
+//     authenticated: (user: User, authToken: AuthToken) => void;
+//     navigateTo: (url: string) => void;
+// }
 
-export class RegisterPresenter {
+export class RegisterPresenter extends Presenter<AuthenticationView> {
     private service: UserService;
-    private view: RegisterView;
 
-    //private imageBytes: Uint8Array = new Uint8Array();
-    //private _imageUrl: string = "";
-
-    public constructor(view: RegisterView) {
-        this.view = view;
+    public constructor(view: AuthenticationView) {
+        super(view);
         this.service = new UserService();
     }
 
@@ -31,10 +23,9 @@ export class RegisterPresenter {
         lastName: string,
         alias: string,
         password: string,
-        rememberMeRef: React.MutableRefObject<boolean>,
         imageBytes: Uint8Array
     ) {
-        try {
+        this.doFailureReportingOperation(async () => {
             let [user, authToken] = await this.service.register(
                 firstName,
                 lastName,
@@ -43,18 +34,9 @@ export class RegisterPresenter {
                 imageBytes
             );
 
-            this.view.updateUserInfo(
-                user,
-                user,
-                authToken,
-                rememberMeRef.current
-            );
-            this.view.navigate("/");
-        } catch (error) {
-            this.view.displayErrorMessage(
-                `Failed to register user because of exception: ${error}`
-            );
-        }
+            this.view.authenticated(user, authToken);
+            this.view.navigateTo("/");
+        }, "register user");
     }
 
     public handleImageFile(
@@ -86,8 +68,4 @@ export class RegisterPresenter {
             setImageBytes(new Uint8Array());
         }
     }
-
-    // public get imageUrl() {
-    //     return this._imageUrl;
-    // }
 }

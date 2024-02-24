@@ -12,12 +12,15 @@ export class FeedPresenter extends StatusItemPresenter {
         this.service = new StatusService();
     }
 
-    public async loadMoreItems(authToken: AuthToken, displayedUser: User) {
-        try {
+    public async loadMoreItems(
+        authToken: AuthToken,
+        user: User
+    ): Promise<void> {
+        this.doFailureReportingOperation(async () => {
             if (this.hasMoreItems) {
                 let [newItems, hasMore] = await this.service.loadMoreFeedItems(
                     authToken,
-                    displayedUser,
+                    user,
                     PAGE_SIZE,
                     this.lastItem
                 );
@@ -26,10 +29,6 @@ export class FeedPresenter extends StatusItemPresenter {
                 this.lastItem = newItems[newItems.length - 1];
                 this.view.addItems(newItems);
             }
-        } catch (error) {
-            this.view.displayErrorMessage(
-                `Failed to load feed items because of exception: ${error}`
-            );
-        }
+        }, "load feed items");
     }
 }

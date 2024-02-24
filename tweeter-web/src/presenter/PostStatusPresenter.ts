@@ -1,18 +1,17 @@
 import { AuthToken, Status, User } from "tweeter-shared";
 import { StatusService } from "../model/service/StatusService";
+import { Presenter, View } from "./Presenter";
 
-export interface PostStatusView {
-    displayErrorMessage: (message: string) => void;
+export interface PostStatusView extends View {
     displayInfoMessage: (message: string, duration: number) => void;
     clearLastInfoMessage: () => void;
 }
 
-export class PostStatusPresenter {
+export class PostStatusPresenter extends Presenter<PostStatusView> {
     private service: StatusService;
-    private view: PostStatusView;
 
     public constructor(view: PostStatusView) {
-        this.view = view;
+        super(view);
         this.service = new StatusService();
     }
 
@@ -22,7 +21,7 @@ export class PostStatusPresenter {
         authToken: AuthToken,
         setPost: React.Dispatch<React.SetStateAction<string>>
     ) {
-        try {
+        this.doFailureReportingOperation(async () => {
             this.view.displayInfoMessage("Posting status...", 0);
 
             let status = new Status(post, currentUser!, Date.now());
@@ -32,10 +31,6 @@ export class PostStatusPresenter {
             this.view.clearLastInfoMessage();
             setPost("");
             this.view.displayInfoMessage("Status posted!", 2000);
-        } catch (error) {
-            this.view.displayErrorMessage(
-                `Failed to post the status because of exception: ${error}`
-            );
-        }
+        }, "post the status");
     }
 }

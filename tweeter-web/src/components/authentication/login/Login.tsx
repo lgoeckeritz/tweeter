@@ -3,11 +3,12 @@ import "bootstrap/dist/css/bootstrap.css";
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../AuthenticationFormLayout";
-//import { AuthToken, FakeData, User } from "tweeter-shared";
 import useToastListener from "../../toaster/ToastListenerHook";
 import AuthenticationFields from "../AuthenticationFields";
 import useUserInfo from "../../userInfo/UserInfoHook";
-import { LoginPresenter, LoginView } from "../../../presenter/LoginPresenter";
+import { LoginPresenter } from "../../../presenter/LoginPresenter";
+import { AuthToken, User } from "tweeter-shared";
+import { AuthenticationView } from "../../../presenter/Presenter";
 
 interface Props {
     originalUrl?: string;
@@ -30,13 +31,14 @@ const Login = (props: Props) => {
     };
 
     const doLogin = async () => {
-        presenter.doLogin(alias, password, rememberMeRef, props.originalUrl);
+        presenter.doLogin(alias, password, props.originalUrl);
     };
 
-    const listener: LoginView = {
+    const listener: AuthenticationView = {
         displayErrorMessage: displayErrorMessage,
-        updateUserInfo: updateUserInfo,
-        navigate: navigate,
+        authenticated: (user: User, authToken: AuthToken) =>
+            updateUserInfo(user, user, authToken, rememberMe),
+        navigateTo: (url: string) => navigate(url),
     };
 
     //might not need useState but have it just in case

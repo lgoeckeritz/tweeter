@@ -6,10 +6,9 @@ import AuthenticationFormLayout from "../AuthenticationFormLayout";
 import useToastListener from "../../toaster/ToastListenerHook";
 import AuthenticationFields from "../AuthenticationFields";
 import useUserInfo from "../../userInfo/UserInfoHook";
-import {
-    RegisterPresenter,
-    RegisterView,
-} from "../../../presenter/RegisterPresenter";
+import { RegisterPresenter } from "../../../presenter/RegisterPresenter";
+import { User, AuthToken } from "tweeter-shared";
+import { AuthenticationView } from "../../../presenter/Presenter";
 
 const Register = () => {
     const [firstName, setFirstName] = useState("");
@@ -37,20 +36,14 @@ const Register = () => {
     };
 
     const doRegister = async () => {
-        presenter.doRegister(
-            firstName,
-            lastName,
-            alias,
-            password,
-            rememberMeRef,
-            imageBytes
-        );
+        presenter.doRegister(firstName, lastName, alias, password, imageBytes);
     };
 
-    const listener: RegisterView = {
+    const listener: AuthenticationView = {
         displayErrorMessage: displayErrorMessage,
-        updateUserInfo: updateUserInfo,
-        navigate: navigate,
+        authenticated: (user: User, authToken: AuthToken) =>
+            updateUserInfo(user, user, authToken, rememberMe),
+        navigateTo: (url: string) => navigate(url),
     };
 
     //might not need useState but have it just in case

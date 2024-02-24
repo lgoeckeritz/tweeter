@@ -1,52 +1,36 @@
 import { User, AuthToken } from "tweeter-shared";
 import { UserService } from "../model/service/UserService";
-import { NavigateFunction } from "react-router-dom";
+import { AuthenticationView, Presenter } from "./Presenter";
 
-export interface LoginView {
-    displayErrorMessage: (message: string) => void;
-    updateUserInfo: (
-        currentUser: User,
-        displayedUser: User | null,
-        authToken: AuthToken,
-        remember: boolean
-    ) => void;
-    navigate: NavigateFunction;
-}
+// export interface LoginView {
+//     displayErrorMessage: (message: string) => void;
+//     authenticated: (user: User, authToken: AuthToken) => void;
+//     navigateTo: (url: string) => void;
+// }
 
-export class LoginPresenter {
+export class LoginPresenter extends Presenter<AuthenticationView> {
     private service: UserService;
-    private view: LoginView;
 
-    public constructor(view: LoginView) {
-        this.view = view;
+    public constructor(view: AuthenticationView) {
+        super(view);
         this.service = new UserService();
     }
 
     public async doLogin(
         alias: string,
         password: string,
-        rememberMeRef: React.MutableRefObject<boolean>,
         originalUrl: string | undefined
     ) {
-        try {
+        this.doFailureReportingOperation(async () => {
             let [user, authToken] = await this.service.login(alias, password);
 
-            this.view.updateUserInfo(
-                user,
-                user,
-                authToken,
-                rememberMeRef.current
-            );
+            this.view.authenticated(user, authToken);
 
             if (!!originalUrl) {
-                this.view.navigate(originalUrl);
+                this.view.navigateTo(originalUrl);
             } else {
-                this.view.navigate("/");
+                this.view.navigateTo("/");
             }
-        } catch (error) {
-            this.view.displayErrorMessage(
-                `Failed to log user in because of exception: ${error}`
-            );
-        }
+        }, "log user in");
     }
 }

@@ -6,15 +6,17 @@ export const PAGE_SIZE = 10;
 
 export class FollowingPresenter extends UserItemPresenter {
     private service: FollowService;
-    private lastItem: User | null = null;
 
     public constructor(view: UserItemView) {
         super(view);
         this.service = new FollowService();
     }
 
-    public async loadMoreItems(authToken: AuthToken, user: User) {
-        try {
+    public async loadMoreItems(
+        authToken: AuthToken,
+        user: User
+    ): Promise<void> {
+        this.doFailureReportingOperation(async () => {
             if (this.hasMoreItems) {
                 let [newItems, hasMore] = await this.service.loadMoreFollowees(
                     authToken,
@@ -27,10 +29,6 @@ export class FollowingPresenter extends UserItemPresenter {
                 this.lastItem = newItems[newItems.length - 1];
                 this.view.addItems(newItems);
             }
-        } catch (error) {
-            this.view.displayErrorMessage(
-                `Failed to load followee because of exception: ${error}`
-            );
-        }
+        }, "load followee items");
     }
 }
