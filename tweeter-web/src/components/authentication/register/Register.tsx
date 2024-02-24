@@ -6,9 +6,11 @@ import AuthenticationFormLayout from "../AuthenticationFormLayout";
 import useToastListener from "../../toaster/ToastListenerHook";
 import AuthenticationFields from "../AuthenticationFields";
 import useUserInfo from "../../userInfo/UserInfoHook";
-import { RegisterPresenter } from "../../../presenter/RegisterPresenter";
+import {
+    RegisterPresenter,
+    RegisterView,
+} from "../../../presenter/RegisterPresenter";
 import { User, AuthToken } from "tweeter-shared";
-import { AuthenticationView } from "../../../presenter/Presenter";
 
 const Register = () => {
     const [firstName, setFirstName] = useState("");
@@ -32,18 +34,20 @@ const Register = () => {
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        presenter.handleImageFile(file, setImageUrl, setImageBytes);
+        presenter.handleImageFile(file);
     };
 
     const doRegister = async () => {
         presenter.doRegister(firstName, lastName, alias, password, imageBytes);
     };
 
-    const listener: AuthenticationView = {
+    const listener: RegisterView = {
         displayErrorMessage: displayErrorMessage,
         authenticated: (user: User, authToken: AuthToken) =>
             updateUserInfo(user, user, authToken, rememberMe),
         navigateTo: (url: string) => navigate(url),
+        setImageUrl: (url: string) => setImageUrl(url),
+        setImageBytes: (bytes: Uint8Array) => setImageBytes(bytes),
     };
 
     //might not need useState but have it just in case

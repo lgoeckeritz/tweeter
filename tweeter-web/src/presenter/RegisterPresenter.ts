@@ -4,16 +4,24 @@ import { UserService } from "../model/service/UserService";
 import { Buffer } from "buffer";
 import { AuthenticationView, Presenter } from "./Presenter";
 
-// export interface RegisterView {
-//     displayErrorMessage: (message: string) => void;
-//     authenticated: (user: User, authToken: AuthToken) => void;
-//     navigateTo: (url: string) => void;
-// }
+export interface RegisterView extends AuthenticationView {
+    setImageUrl: (url: string) => void;
+    setImageBytes: (bytes: Uint8Array) => void;
+}
 
-export class RegisterPresenter extends Presenter<AuthenticationView> {
+/*
+TODO: This and login have similar things to factor out
+do something similar tro doFailureReportingOperation to pull out
+duplicated code from doRegister and doLogin
+put that AuthenticationView in there too
+
+
+*/
+
+export class RegisterPresenter extends Presenter<RegisterView> {
     private service: UserService;
 
-    public constructor(view: AuthenticationView) {
+    public constructor(view: RegisterView) {
         super(view);
         this.service = new UserService();
     }
@@ -39,13 +47,9 @@ export class RegisterPresenter extends Presenter<AuthenticationView> {
         }, "register user");
     }
 
-    public handleImageFile(
-        file: File | undefined,
-        setImageUrl: React.Dispatch<React.SetStateAction<string>>,
-        setImageBytes: React.Dispatch<React.SetStateAction<Uint8Array>>
-    ) {
+    public handleImageFile(file: File | undefined) {
         if (file) {
-            setImageUrl(URL.createObjectURL(file));
+            this.view.setImageUrl(URL.createObjectURL(file));
 
             const reader = new FileReader();
             reader.onload = (event: ProgressEvent<FileReader>) => {
@@ -60,12 +64,12 @@ export class RegisterPresenter extends Presenter<AuthenticationView> {
                     "base64"
                 );
 
-                setImageBytes(bytes);
+                this.view.setImageBytes(bytes);
             };
             reader.readAsDataURL(file);
         } else {
-            setImageUrl("");
-            setImageBytes(new Uint8Array());
+            this.view.setImageUrl("");
+            this.view.setImageBytes(new Uint8Array());
         }
     }
 }
