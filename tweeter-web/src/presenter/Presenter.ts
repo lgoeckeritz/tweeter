@@ -11,7 +11,6 @@ export interface MessageView extends View {
 }
 
 export interface AuthenticationView extends View {
-    displayErrorMessage: (message: string) => void;
     authenticated: (user: User, authToken: AuthToken) => void;
     navigateTo: (url: string) => void;
 }
