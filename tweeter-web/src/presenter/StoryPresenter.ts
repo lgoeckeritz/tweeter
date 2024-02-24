@@ -6,7 +6,6 @@ export const PAGE_SIZE = 10;
 
 export class StoryPresenter extends StatusItemPresenter {
     private service: StatusService;
-    private lastItem: Status | null = null;
 
     public constructor(view: StatusItemView) {
         super(view);

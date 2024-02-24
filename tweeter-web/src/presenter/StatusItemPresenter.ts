@@ -8,6 +8,7 @@ export interface StatusItemView {
 export abstract class StatusItemPresenter {
     private _view: StatusItemView;
     private _hasMoreItems: boolean = true;
+    private _lastItem: Status | null = null;
 
     protected constructor(view: StatusItemView) {
         this._view = view;
@@ -23,6 +24,14 @@ export abstract class StatusItemPresenter {
 
     protected set hasMoreItems(value: boolean) {
         this._hasMoreItems = value;
+    }
+
+    public get lastItem() {
+        return this._lastItem;
+    }
+
+    protected set lastItem(value: Status | null) {
+        this._lastItem = value;
     }
 
     public abstract loadMoreItems(
