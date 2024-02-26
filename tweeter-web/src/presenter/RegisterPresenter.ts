@@ -27,7 +27,6 @@ export class RegisterPresenter extends Authentication<RegisterView> {
                 password,
                 imageBytes
             );
-
             this.doAuthenticateNavigate(async () => {
                 this.view.authenticated(user, authToken);
                 this.view.navigateTo("/");
