@@ -1,29 +1,15 @@
-import { NavigateFunction } from "react-router-dom";
-import { User, AuthToken } from "tweeter-shared";
-import { UserService } from "../model/service/UserService";
 import { Buffer } from "buffer";
-import { AuthenticationView, Presenter } from "./Presenter";
+import { AuthenticationView } from "./Presenter";
+import { Authentication } from "./Authentication";
 
 export interface RegisterView extends AuthenticationView {
     setImageUrl: (url: string) => void;
     setImageBytes: (bytes: Uint8Array) => void;
 }
 
-/*
-TODO: This and login have similar things to factor out
-do something similar tro doFailureReportingOperation to pull out
-duplicated code from doRegister and doLogin
-put that AuthenticationView in there too
-
-
-*/
-
-export class RegisterPresenter extends Presenter<RegisterView> {
-    private service: UserService;
-
+export class RegisterPresenter extends Authentication<RegisterView> {
     public constructor(view: RegisterView) {
         super(view);
-        this.service = new UserService();
     }
 
     public async doRegister(
@@ -42,8 +28,10 @@ export class RegisterPresenter extends Presenter<RegisterView> {
                 imageBytes
             );
 
-            this.view.authenticated(user, authToken);
-            this.view.navigateTo("/");
+            this.doAuthenticateNavigate(async () => {
+                this.view.authenticated(user, authToken);
+                this.view.navigateTo("/");
+            });
         }, "register user");
     }
 

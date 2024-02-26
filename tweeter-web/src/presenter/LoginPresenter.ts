@@ -1,19 +1,9 @@
-import { User, AuthToken } from "tweeter-shared";
-import { UserService } from "../model/service/UserService";
-import { AuthenticationView, Presenter } from "./Presenter";
+import { Authentication } from "./Authentication";
+import { AuthenticationView } from "./Presenter";
 
-// export interface LoginView {
-//     displayErrorMessage: (message: string) => void;
-//     authenticated: (user: User, authToken: AuthToken) => void;
-//     navigateTo: (url: string) => void;
-// }
-
-export class LoginPresenter extends Presenter<AuthenticationView> {
-    private service: UserService;
-
+export class LoginPresenter extends Authentication<AuthenticationView> {
     public constructor(view: AuthenticationView) {
         super(view);
-        this.service = new UserService();
     }
 
     public async doLogin(
@@ -22,15 +12,20 @@ export class LoginPresenter extends Presenter<AuthenticationView> {
         originalUrl: string | undefined
     ) {
         this.doFailureReportingOperation(async () => {
-            let [user, authToken] = await this.service.login(alias, password);
+            this.doAuthenticateNavigate(async () => {
+                let [user, authToken] = await this.service.login(
+                    alias,
+                    password
+                );
 
-            this.view.authenticated(user, authToken);
+                this.view.authenticated(user, authToken);
 
-            if (!!originalUrl) {
-                this.view.navigateTo(originalUrl);
-            } else {
-                this.view.navigateTo("/");
-            }
+                if (!!originalUrl) {
+                    this.view.navigateTo(originalUrl);
+                } else {
+                    this.view.navigateTo("/");
+                }
+            });
         }, "log user in");
     }
 }
