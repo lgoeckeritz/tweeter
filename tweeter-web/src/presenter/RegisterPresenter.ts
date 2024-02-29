@@ -1,17 +1,13 @@
 import { Buffer } from "buffer";
 import { AuthenticationView } from "./Presenter";
-import { Authentication } from "./Authentication";
+import { AuthenticationPresenter } from "./AuthenticationPresenter";
 
 export interface RegisterView extends AuthenticationView {
     setImageUrl: (url: string) => void;
     setImageBytes: (bytes: Uint8Array) => void;
 }
 
-export class RegisterPresenter extends Authentication<RegisterView> {
-    public constructor(view: RegisterView) {
-        super(view);
-    }
-
+export class RegisterPresenter extends AuthenticationPresenter<RegisterView> {
     public async doRegister(
         firstName: string,
         lastName: string,
@@ -19,19 +15,21 @@ export class RegisterPresenter extends Authentication<RegisterView> {
         password: string,
         imageBytes: Uint8Array
     ) {
-        this.doFailureReportingOperation(async () => {
-            let [user, authToken] = await this.service.register(
-                firstName,
-                lastName,
-                alias,
-                password,
-                imageBytes
-            );
-            this.doAuthenticateNavigate(async () => {
-                this.view.authenticated(user, authToken);
+        this.doAuthentionOperation(
+            async () => {
+                return this.service.register(
+                    firstName,
+                    lastName,
+                    alias,
+                    password,
+                    imageBytes
+                );
+            },
+            async () => {
                 this.view.navigateTo("/");
-            });
-        }, "register user");
+            },
+            "register user"
+        );
     }
 
     public handleImageFile(file: File | undefined) {

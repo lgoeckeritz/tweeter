@@ -1,31 +1,24 @@
-import { Authentication } from "./Authentication";
+import { AuthenticationPresenter } from "./AuthenticationPresenter";
 import { AuthenticationView } from "./Presenter";
 
-export class LoginPresenter extends Authentication<AuthenticationView> {
-    public constructor(view: AuthenticationView) {
-        super(view);
-    }
-
+export class LoginPresenter extends AuthenticationPresenter<AuthenticationView> {
     public async doLogin(
         alias: string,
         password: string,
         originalUrl: string | undefined
     ) {
-        this.doFailureReportingOperation(async () => {
-            this.doAuthenticateNavigate(async () => {
-                let [user, authToken] = await this.service.login(
-                    alias,
-                    password
-                );
-
-                this.view.authenticated(user, authToken);
-
+        this.doAuthentionOperation(
+            async () => {
+                return this.service.login(alias, password);
+            },
+            async () => {
                 if (!!originalUrl) {
                     this.view.navigateTo(originalUrl);
                 } else {
                     this.view.navigateTo("/");
                 }
-            });
-        }, "log user in");
+            },
+            "log user in"
+        );
     }
 }
