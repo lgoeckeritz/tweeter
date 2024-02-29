@@ -22,10 +22,3 @@ Rebuild either module of the project (tweeter-shared or tweeter-web) by running 
 ## Running the Project
 
 Run the project by running 'npm start' from within the 'tweeter-web' folder.
-
-## Next Todos
-
-# Milestone 2B:
-
--   eliminate duplication between UserItemScroller and StatusItemScroller
--   watch that second video and it should cover the rest
