@@ -12,6 +12,7 @@ import { AuthenticationView } from "../../../presenter/AuthenticationPresenter";
 
 interface Props {
     originalUrl?: string;
+    presenter?: LoginPresenter;
 }
 
 const Login = (props: Props) => {
@@ -41,8 +42,9 @@ const Login = (props: Props) => {
         navigateTo: (url: string) => navigate(url),
     };
 
-    //might not need useState but have it just in case
-    const [presenter] = useState(new LoginPresenter(listener));
+    const [presenter] = useState(
+        props.presenter ?? new LoginPresenter(listener)
+    );
 
     const inputFieldGenerator = () => {
         return (
