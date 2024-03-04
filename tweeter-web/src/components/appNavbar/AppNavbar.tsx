@@ -1,15 +1,18 @@
 import "./AppNavbar.css";
 import { Container, Nav, Navbar } from "react-bootstrap";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import Image from "react-bootstrap/Image";
 import useToastListener from "../toaster/ToastListenerHook";
 import useUserInfo from "../userInfo/UserInfoHook";
-import { AppNavbarPresenter } from "../../presenter/AppNavbarPresenter";
+import {
+    AppNavBarView,
+    AppNavbarPresenter,
+} from "../../presenter/AppNavbarPresenter";
 import { useState } from "react";
-import { MessageView } from "../../presenter/Presenter";
 
 const AppNavbar = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const { authToken, clearUserInfo } = useUserInfo();
     const { displayInfoMessage, displayErrorMessage, clearLastInfoMessage } =
         useToastListener();
@@ -18,11 +21,12 @@ const AppNavbar = () => {
         presenter.logOut(authToken!);
     };
 
-    const listener: MessageView = {
+    const listener: AppNavBarView = {
         displayErrorMessage: displayErrorMessage,
         displayInfoMessage: displayInfoMessage,
         clearLastInfoMessage: clearLastInfoMessage,
         clearUserInfo: clearUserInfo,
+        navigateToLogin: () => navigate(location.pathname),
     };
 
     //not sure if this needs to useState but I don't think it hurts
@@ -67,11 +71,7 @@ const AppNavbar = () => {
                             <NavLink to="/followers">Followers</NavLink>
                         </Nav.Item>
                         <Nav.Item>
-                            <NavLink
-                                id="logout"
-                                onClick={logOut}
-                                to={location.pathname}
-                            >
+                            <NavLink id="logout" onClick={logOut} to={""}>
                                 Logout
                             </NavLink>
                         </Nav.Item>

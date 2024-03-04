@@ -22,3 +22,8 @@ Rebuild either module of the project (tweeter-shared or tweeter-web) by running 
 ## Running the Project
 
 Run the project by running 'npm start' from within the 'tweeter-web' folder.
+
+## TODO:
+
+-   refactor appNavBar so that there's a navigateToLogin function
+-   watch the second video

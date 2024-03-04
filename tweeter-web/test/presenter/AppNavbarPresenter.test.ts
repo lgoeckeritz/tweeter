@@ -1,6 +1,8 @@
 import { AuthToken } from "tweeter-shared";
-import { AppNavbarPresenter } from "../../src/presenter/AppNavbarPresenter";
-import { MessageView } from "../../src/presenter/Presenter";
+import {
+    AppNavBarView,
+    AppNavbarPresenter,
+} from "../../src/presenter/AppNavbarPresenter";
 import {
     anything,
     capture,
@@ -13,14 +15,14 @@ import {
 import { UserService } from "../../src/model/service/UserService";
 
 describe("AppNavbarPresenter", () => {
-    let mockAppNavbarPresenterView: MessageView;
+    let mockAppNavbarPresenterView: AppNavBarView;
     let appNavbarPresenter: AppNavbarPresenter;
     let mockUserService: UserService;
 
     const authToken = new AuthToken("abc123", Date.now());
 
     beforeEach(() => {
-        mockAppNavbarPresenterView = mock<MessageView>();
+        mockAppNavbarPresenterView = mock<AppNavBarView>();
         const mockAppNavbarPresenterViewInstance = instance(
             mockAppNavbarPresenterView
         );
@@ -52,8 +54,7 @@ describe("AppNavbarPresenter", () => {
         await appNavbarPresenter.logOut(authToken);
         verify(mockAppNavbarPresenterView.clearLastInfoMessage()).once();
         verify(mockAppNavbarPresenterView.clearUserInfo()).once();
-        // TODO: Figure out how this is supposed to run because I don't have a navigate
-        // verify(mockAppNavbarPresenterView.navigateToLogin()).once();
+        verify(mockAppNavbarPresenterView.navigateToLogin()).once();
 
         verify(
             mockAppNavbarPresenterView.displayErrorMessage(anything())
@@ -79,7 +80,6 @@ describe("AppNavbarPresenter", () => {
 
         verify(mockAppNavbarPresenterView.clearLastInfoMessage()).never();
         verify(mockAppNavbarPresenterView.clearUserInfo()).never();
-        // TODO: Figure out how this is supposed to run because I don't have a navigate
-        // verify(mockAppNavbarPresenterView.navigateToLogin()).never();
+        verify(mockAppNavbarPresenterView.navigateToLogin()).never();
     });
 });
