@@ -24,7 +24,7 @@ export class AppNavbarPresenter extends Presenter<AppNavBarView> {
             await this.service.logout(authToken!);
             this.view.clearLastInfoMessage();
             this.view.clearUserInfo();
-            //TODO: should this have a navigateToLogin?
+            this.view.navigateToLogin();
         }, "log user out");
     }
 }
