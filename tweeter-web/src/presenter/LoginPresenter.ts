@@ -1,5 +1,7 @@
-import { AuthenticationPresenter } from "./AuthenticationPresenter";
-import { AuthenticationView } from "./Presenter";
+import {
+    AuthenticationPresenter,
+    AuthenticationView,
+} from "./AuthenticationPresenter";
 
 export class LoginPresenter extends AuthenticationPresenter<AuthenticationView> {
     public async doLogin(

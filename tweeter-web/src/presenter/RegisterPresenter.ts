@@ -1,6 +1,8 @@
 import { Buffer } from "buffer";
-import { AuthenticationView } from "./Presenter";
-import { AuthenticationPresenter } from "./AuthenticationPresenter";
+import {
+    AuthenticationPresenter,
+    AuthenticationView,
+} from "./AuthenticationPresenter";
 
 export interface RegisterView extends AuthenticationView {
     setImageUrl: (url: string) => void;

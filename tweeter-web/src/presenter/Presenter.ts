@@ -10,11 +10,6 @@ export interface MessageView extends View {
     displayInfoMessage: (message: string, duration: number) => void;
 }
 
-export interface AuthenticationView extends View {
-    authenticated: (user: User, authToken: AuthToken) => void;
-    navigateTo: (url: string) => void;
-}
-
 export class Presenter<T extends View> {
     private _view: T;
 
@@ -34,7 +29,9 @@ export class Presenter<T extends View> {
             await operation();
         } catch (error) {
             this.view.displayErrorMessage(
-                `Failed to ${operationDescription} because of exception: ${error}`
+                `Failed to ${operationDescription} because of exception: ${
+                    (error as Error).message
+                }`
             );
         }
     }

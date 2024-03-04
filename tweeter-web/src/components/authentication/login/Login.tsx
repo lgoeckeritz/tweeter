@@ -8,7 +8,7 @@ import AuthenticationFields from "../AuthenticationFields";
 import useUserInfo from "../../userInfo/UserInfoHook";
 import { LoginPresenter } from "../../../presenter/LoginPresenter";
 import { AuthToken, User } from "tweeter-shared";
-import { AuthenticationView } from "../../../presenter/Presenter";
+import { AuthenticationView } from "../../../presenter/AuthenticationPresenter";
 
 interface Props {
     originalUrl?: string;
