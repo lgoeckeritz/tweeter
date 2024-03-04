@@ -4,16 +4,10 @@ import { MemoryRouter } from "react-router-dom";
 import React from "react";
 import userEvent from "@testing-library/user-event";
 import { AuthToken, User } from "tweeter-shared";
-import {
-    anything,
-    capture,
-    instance,
-    mock,
-    spy,
-    verify,
-    when,
-} from "ts-mockito";
+import { instance, mock, verify } from "ts-mockito";
 import { PostStatusPresenter } from "../../../src/presenter/PostStatusPresenter";
+import useUserInfo from "../../../src/components/userInfo/UserInfoHook";
+import "@testing-library/jest-dom";
 
 jest.mock("../../../src/components/userInfo/UserInfoHook", () => ({
     ...jest.requireActual("../../../src/components/userInfo/UserInfoHook"),
@@ -22,8 +16,6 @@ jest.mock("../../../src/components/userInfo/UserInfoHook", () => ({
 }));
 
 describe("PostStatus Component", () => {
-    //todo: idk what I'm doing here
-    let useUserInfo: jest.Mock<any, any, any>;
     let mockUser: User;
     let mockAuthToken: AuthToken;
 
@@ -68,8 +60,8 @@ describe("PostStatus Component", () => {
         expect(clearStatusButton).toBeEnabled();
 
         await user.clear(postText);
-        expect(postStatusButton).toBeEnabled();
-        expect(clearStatusButton).toBeEnabled();
+        expect(postStatusButton).toBeDisabled();
+        expect(clearStatusButton).toBeDisabled();
     });
 
     it("calls the presenters postStatus method when the Post Status button is pressed", async () => {
@@ -86,8 +78,8 @@ describe("PostStatus Component", () => {
         verify(
             mockPresenter.submitPost(
                 post,
-                mockUserInstance, //todo: make sure this is the right thing to be passed
-                mockAuthTokenInstance //todo: make sure this is the right thing to be passed
+                mockUserInstance,
+                mockAuthTokenInstance
             )
         ).once();
     });
