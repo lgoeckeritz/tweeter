@@ -1,6 +1,11 @@
 import { AuthToken } from "../domain/AuthToken";
 import { User } from "../domain/User";
 
+//consider changing this to an interface like this: (check the slides for what it should actually look like)
+// export interface TweeterResponse {
+//     readonly success: boolean;
+//     readonly message: string | null;
+// }
 export class TweeterResponse {
     private _success: boolean;
     private _message: string | null;
