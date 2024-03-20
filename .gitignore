@@ -6,6 +6,7 @@
 .pnp.js
 /tweeter-server/node_modules
 /tweeter-server/nodejs
+/tweeter-server/dist
 
 # testing
 /coverage
