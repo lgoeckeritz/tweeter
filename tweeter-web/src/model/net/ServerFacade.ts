@@ -2,7 +2,8 @@ import { AuthenticateResponse, LoginRequest } from "tweeter-shared";
 import { ClientCommunicator } from "./ClientCommunicator";
 
 export class ServerFacade {
-    private SERVER_URL = "TODO: Set this value.";
+    private SERVER_URL =
+        "https://gh82nug6qk.execute-api.us-east-1.amazonaws.com/dev";
 
     private clientCommunicator = new ClientCommunicator(this.SERVER_URL);
 

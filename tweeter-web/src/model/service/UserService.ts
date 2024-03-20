@@ -23,14 +23,6 @@ export class UserService {
         alias: string,
         password: string
     ): Promise<[User, AuthToken]> {
-        // TODO: Replace with the result of calling the server
-        // let user = FakeData.instance.firstUser;
-
-        // if (user === null) {
-        //     throw new Error("Invalid alias or password");
-        // }
-
-        // return [user, FakeData.instance.authToken];
         let authResponse: AuthenticateResponse = await this.serverFacade.login(
             new LoginRequest(alias, password)
         );
