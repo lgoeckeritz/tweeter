@@ -33,3 +33,5 @@ export class RegisterRequest extends TweeterRequest {
         this.imageStringBase64 = imageStringBase64;
     }
 }
+
+export class LogoutRequest extends TweeterRequest {}
