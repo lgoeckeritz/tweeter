@@ -4,6 +4,7 @@ import {
     FakeData,
     LoginRequest,
     AuthenticateResponse,
+    RegisterRequest,
 } from "tweeter-shared";
 import { Buffer } from "buffer";
 import { ServerFacade } from "../net/ServerFacade";
@@ -41,14 +42,18 @@ export class UserService {
         let imageStringBase64: string =
             Buffer.from(userImageBytes).toString("base64");
 
-        // TODO: Replace with the result of calling the server
-        let user = FakeData.instance.firstUser;
+        let authResponse: AuthenticateResponse =
+            await this.serverFacade.register(
+                new RegisterRequest(
+                    firstName,
+                    lastName,
+                    alias,
+                    password,
+                    imageStringBase64
+                )
+            );
 
-        if (user === null) {
-            throw new Error("Invalid registration");
-        }
-
-        return [user, FakeData.instance.authToken];
+        return [authResponse.user, authResponse.token];
     }
 
     public async logout(authToken: AuthToken): Promise<void> {
