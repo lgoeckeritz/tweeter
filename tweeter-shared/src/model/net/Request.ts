@@ -1,4 +1,17 @@
+import { AuthToken } from "../domain/AuthToken";
+
 export class TweeterRequest {}
+
+export class GetUserRequest extends TweeterRequest {
+    authToken: AuthToken;
+    alias: string;
+
+    constructor(authToken: AuthToken, alias: string) {
+        super();
+        this.authToken = authToken;
+        this.alias = alias;
+    }
+}
 
 export class LoginRequest extends TweeterRequest {
     username: string;
@@ -34,4 +47,11 @@ export class RegisterRequest extends TweeterRequest {
     }
 }
 
-export class LogoutRequest extends TweeterRequest {}
+export class LogoutRequest extends TweeterRequest {
+    token: AuthToken;
+
+    constructor(token: AuthToken) {
+        super();
+        this.token = token;
+    }
+}

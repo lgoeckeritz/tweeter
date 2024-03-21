@@ -5,9 +5,14 @@ import {
     LoginRequest,
     AuthenticateResponse,
     RegisterRequest,
+    GetUserResponse,
 } from "tweeter-shared";
 import { Buffer } from "buffer";
 import { ServerFacade } from "../net/ServerFacade";
+import {
+    GetUserRequest,
+    LogoutRequest,
+} from "tweeter-shared/dist/model/net/Request";
 
 export class UserService {
     private serverFacade = new ServerFacade();
@@ -16,8 +21,10 @@ export class UserService {
         authToken: AuthToken,
         alias: string
     ): Promise<User | null> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.findUserByAlias(alias);
+        let userResponse: GetUserResponse = await this.serverFacade.getUser(
+            new GetUserRequest(authToken, alias)
+        );
+        return User.fromDto(userResponse.user)!;
     }
 
     public async login(
@@ -27,8 +34,10 @@ export class UserService {
         let authResponse: AuthenticateResponse = await this.serverFacade.login(
             new LoginRequest(alias, password)
         );
-
-        return [authResponse.user, authResponse.token];
+        return [
+            User.fromDto(authResponse.user)!,
+            AuthToken.fromDto(authResponse.token)!,
+        ];
     }
 
     public async register(
@@ -53,11 +62,13 @@ export class UserService {
                 )
             );
 
-        return [authResponse.user, authResponse.token];
+        return [
+            User.fromDto(authResponse.user)!,
+            AuthToken.fromDto(authResponse.token)!,
+        ];
     }
 
     public async logout(authToken: AuthToken): Promise<void> {
-        // Pause so we can see the logging out message. Delete when the call to the server is implemented.
-        await new Promise((res) => setTimeout(res, 1000));
+        await this.serverFacade.logout(new LogoutRequest(authToken));
     }
 }
