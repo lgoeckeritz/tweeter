@@ -4,8 +4,13 @@ import {
     FakeData,
     LoadMoreUserItemsResponse,
     LoadMoreUserItemsRequest,
+    GetIsFollowerStatusResponse,
+    GetIsFollowerStatusRequest,
+    GetFollowCountResponse,
+    FollowInfoRequest,
 } from "tweeter-shared";
 import { ServerFacade } from "../net/ServerFacade";
+import { TweeterResponse } from "tweeter-shared/dist/model/net/Response";
 
 export class FollowService {
     private serverFacade: ServerFacade = new ServerFacade();
@@ -51,34 +56,44 @@ export class FollowService {
         user: User,
         selectedUser: User
     ): Promise<boolean> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.isFollower();
+        let response: GetIsFollowerStatusResponse =
+            await this.serverFacade.getIsFollowerStatus(
+                new GetIsFollowerStatusRequest(authToken, user, selectedUser)
+            );
+        return response.isFollower;
     }
 
     public async getFolloweesCount(
         authToken: AuthToken,
         user: User
     ): Promise<number> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getFolloweesCount(user);
+        let response: GetFollowCountResponse =
+            await this.serverFacade.getFolloweesCount(
+                new FollowInfoRequest(authToken, user)
+            );
+        return response.count;
     }
 
     public async getFollowersCount(
         authToken: AuthToken,
         user: User
     ): Promise<number> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getFollowersCount(user);
+        let response: GetFollowCountResponse =
+            await this.serverFacade.getFollowersCount(
+                new FollowInfoRequest(authToken, user)
+            );
+        return response.count;
     }
 
     public async follow(
         authToken: AuthToken,
         userToFollow: User
     ): Promise<[followersCount: number, followeesCount: number]> {
-        // Pause so we can see the following message. Remove when connected to the server
-        await new Promise((f) => setTimeout(f, 2000));
+        let response: TweeterResponse = await this.serverFacade.follow(
+            new FollowInfoRequest(authToken, userToFollow)
+        );
 
-        // TODO: Call the server
+        // TODO: maybe check here if the follow request was a success?
 
         let followersCount = await this.getFollowersCount(
             authToken,
@@ -96,10 +111,11 @@ export class FollowService {
         authToken: AuthToken,
         userToUnfollow: User
     ): Promise<[followersCount: number, followeesCount: number]> {
-        // Pause so we can see the unfollowing message. Remove when connected to the server
-        await new Promise((f) => setTimeout(f, 2000));
+        let response: TweeterResponse = await this.serverFacade.unfollow(
+            new FollowInfoRequest(authToken, userToUnfollow)
+        );
 
-        // TODO: Call the server
+        // TODO: maybe check here if the follow request was a success?
 
         let followersCount = await this.getFollowersCount(
             authToken,
