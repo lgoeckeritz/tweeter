@@ -95,3 +95,51 @@ export class PostStatusRequest extends TweeterRequest {
         this.newStatus = newStatus;
     }
 }
+
+/**
+ * FollowService Requests
+ */
+
+export class LoadMoreUserItemsRequest extends TweeterRequest {
+    authToken: AuthToken;
+    user: User;
+    pageSize: number;
+    lastItem: User | null;
+
+    constructor(
+        authToken: AuthToken,
+        user: User,
+        pageSize: number,
+        lastItem: User | null
+    ) {
+        super();
+        this.authToken = authToken;
+        this.user = user;
+        this.pageSize = pageSize;
+        this.lastItem = lastItem;
+    }
+}
+
+export class GetIsFollowerStatusRequest extends TweeterRequest {
+    authToken: AuthToken;
+    user: User;
+    selectedUser: User;
+
+    constructor(authToken: AuthToken, user: User, selectedUser: User) {
+        super();
+        this.authToken = authToken;
+        this.user = user;
+        this.selectedUser = selectedUser;
+    }
+}
+
+export class FollowInfoRequest extends TweeterRequest {
+    authToken: AuthToken;
+    user: User;
+
+    constructor(authToken: AuthToken, user: User) {
+        super();
+        this.authToken = authToken;
+        this.user = user;
+    }
+}

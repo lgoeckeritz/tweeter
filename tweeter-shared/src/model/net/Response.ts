@@ -211,3 +211,156 @@ export class LoadMoreStatusItemsResponse extends TweeterResponse {
         );
     }
 }
+
+/**
+ * FollowService Responses
+ */
+
+export class LoadMoreUserItemsResponse extends TweeterResponse {
+    private _pageOfUsers: User[];
+    private _hasMoreItems: boolean;
+
+    constructor(
+        success: boolean,
+        pageOfUsers: User[],
+        hasMoreItems: boolean,
+        message: string | null = null
+    ) {
+        super(success, message);
+        this._pageOfUsers = pageOfUsers;
+        this._hasMoreItems = hasMoreItems;
+    }
+
+    get pageOfUsers(): User[] {
+        return this._pageOfUsers;
+    }
+
+    get hasMoreItems(): boolean {
+        return this._hasMoreItems;
+    }
+
+    static fromJson(json: JSON): LoadMoreUserItemsResponse {
+        interface LoadMoreUserItemsResponseJson extends ResponseJson {
+            _pageOfUsers: JSON;
+            _hasMoreItems: JSON;
+        }
+
+        const jsonObject: LoadMoreUserItemsResponseJson =
+            json as unknown as LoadMoreUserItemsResponseJson;
+
+        const deserializedPageOfUsers: User[] | null = JSON.parse(
+            JSON.stringify(jsonObject._pageOfUsers)
+        );
+
+        if (deserializedPageOfUsers === null) {
+            throw new Error(
+                "LoadMoreUserItemsResponse, could not deserialize user with json:\n" +
+                    JSON.stringify(jsonObject._pageOfUsers)
+            );
+        }
+
+        const deserializedHadMoreItems: boolean | null = JSON.parse(
+            JSON.stringify(jsonObject._hasMoreItems)
+        );
+
+        if (deserializedHadMoreItems === null) {
+            throw new Error(
+                "LoadMoreUserItemsResponse, could not deserialize user with json:\n" +
+                    JSON.stringify(jsonObject._hasMoreItems)
+            );
+        }
+
+        return new LoadMoreUserItemsResponse(
+            jsonObject._success,
+            deserializedPageOfUsers,
+            deserializedHadMoreItems,
+            jsonObject._message
+        );
+    }
+}
+
+export class GetIsFollowerStatusResponse extends TweeterResponse {
+    private _isFollower: boolean;
+
+    constructor(
+        success: boolean,
+        isFollower: boolean,
+        message: string | null = null
+    ) {
+        super(success, message);
+        this._isFollower = isFollower;
+    }
+
+    get isFollower(): boolean {
+        return this._isFollower;
+    }
+
+    static fromJson(json: JSON): GetIsFollowerStatusResponse {
+        interface GetIsFollowerStatusResponseJson extends ResponseJson {
+            _isFollower: JSON;
+        }
+
+        const jsonObject: GetIsFollowerStatusResponseJson =
+            json as unknown as GetIsFollowerStatusResponseJson;
+
+        const deserializedIsFollower: boolean | null = JSON.parse(
+            JSON.stringify(jsonObject._isFollower)
+        );
+
+        if (deserializedIsFollower === null) {
+            throw new Error(
+                "GetIsFollowerStatusResponse, could not deserialize user with json:\n" +
+                    JSON.stringify(jsonObject._isFollower)
+            );
+        }
+
+        return new GetIsFollowerStatusResponse(
+            jsonObject._success,
+            deserializedIsFollower,
+            jsonObject._message
+        );
+    }
+}
+
+export class GetFollowCountResponse extends TweeterResponse {
+    private _count: number;
+
+    constructor(
+        success: boolean,
+        count: number,
+        message: string | null = null
+    ) {
+        super(success, message);
+        this._count = count;
+    }
+
+    get count(): number {
+        return this._count;
+    }
+
+    static fromJson(json: JSON): GetFollowCountResponse {
+        interface GetFollowCountResponseJson extends ResponseJson {
+            _count: JSON;
+        }
+
+        const jsonObject: GetFollowCountResponseJson =
+            json as unknown as GetFollowCountResponseJson;
+
+        const deserializedCount: number | null = JSON.parse(
+            JSON.stringify(jsonObject._count)
+        );
+
+        if (deserializedCount === null) {
+            throw new Error(
+                "GetFollowCountResponse, could not deserialize user with json:\n" +
+                    JSON.stringify(jsonObject._count)
+            );
+        }
+
+        return new GetFollowCountResponse(
+            jsonObject._success,
+            deserializedCount,
+            jsonObject._message
+        );
+    }
+}

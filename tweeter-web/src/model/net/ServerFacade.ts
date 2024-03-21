@@ -7,12 +7,14 @@ import { ClientCommunicator } from "./ClientCommunicator";
 import {
     GetUserRequest,
     LoadMoreStatusItemsRequest,
+    LoadMoreUserItemsRequest,
     LogoutRequest,
     PostStatusRequest,
 } from "tweeter-shared/dist/model/net/Request";
 import {
     GetUserResponse,
     LoadMoreStatusItemsResponse,
+    LoadMoreUserItemsResponse,
     TweeterResponse,
 } from "tweeter-shared/dist/model/net/Response";
 
@@ -100,5 +102,33 @@ export class ServerFacade {
                 endpoint
             );
         return TweeterResponse.fromJson(response);
+    }
+
+    /**
+     * FollowService Server Calls
+     */
+
+    async loadMoreFollowers(
+        request: LoadMoreUserItemsRequest
+    ): Promise<LoadMoreUserItemsResponse> {
+        const endpoint = "/service/loadMoreFollowers";
+        const response: JSON =
+            await this.clientCommunicator.doPost<LoadMoreUserItemsRequest>(
+                request,
+                endpoint
+            );
+        return LoadMoreUserItemsResponse.fromJson(response);
+    }
+
+    async loadMoreFollowees(
+        request: LoadMoreUserItemsRequest
+    ): Promise<LoadMoreUserItemsResponse> {
+        const endpoint = "/service/loadMoreFollowees";
+        const response: JSON =
+            await this.clientCommunicator.doPost<LoadMoreUserItemsRequest>(
+                request,
+                endpoint
+            );
+        return LoadMoreUserItemsResponse.fromJson(response);
     }
 }

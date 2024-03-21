@@ -18,9 +18,15 @@ export {
     GetUserRequest,
     LoadMoreStatusItemsRequest,
     PostStatusRequest,
+    LoadMoreUserItemsRequest,
+    GetIsFollowerStatusRequest,
+    FollowInfoRequest,
 } from "./model/net/Request";
 export {
     AuthenticateResponse,
     GetUserResponse,
     LoadMoreStatusItemsResponse,
+    LoadMoreUserItemsResponse,
+    GetIsFollowerStatusResponse,
+    GetFollowCountResponse,
 } from "./model/net/Response";

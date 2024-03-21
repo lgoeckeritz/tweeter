@@ -1,31 +1,14 @@
-import {
-    AuthToken,
-    User,
-    FakeData,
-    LoadMoreUserItemsResponse,
-    LoadMoreUserItemsRequest,
-} from "tweeter-shared";
-import { ServerFacade } from "../net/ServerFacade";
+import { AuthToken, User, FakeData } from "tweeter-shared";
 
 export class FollowService {
-    private serverFacade: ServerFacade = new ServerFacade();
-
     public async loadMoreFollowers(
         authToken: AuthToken,
         user: User,
         pageSize: number,
         lastItem: User | null
     ): Promise<[User[], boolean]> {
-        let response: LoadMoreUserItemsResponse =
-            await this.serverFacade.loadMoreFollowers(
-                new LoadMoreUserItemsRequest(
-                    authToken,
-                    user,
-                    pageSize,
-                    lastItem
-                )
-            );
-        return [response.pageOfUsers, response.hasMoreItems]; //todo: convert response.pageOfStatuses to DTO
+        // TODO: Replace with the result of calling server
+        return FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
     }
 
     public async loadMoreFollowees(
@@ -34,16 +17,8 @@ export class FollowService {
         pageSize: number,
         lastItem: User | null
     ): Promise<[User[], boolean]> {
-        let response: LoadMoreUserItemsResponse =
-            await this.serverFacade.loadMoreFollowees(
-                new LoadMoreUserItemsRequest(
-                    authToken,
-                    user,
-                    pageSize,
-                    lastItem
-                )
-            );
-        return [response.pageOfUsers, response.hasMoreItems]; //todo: convert response.pageOfStatuses to DTO
+        // TODO: Replace with the result of calling server
+        return FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
     }
 
     public async getIsFollowerStatus(
