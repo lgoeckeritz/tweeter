@@ -2,7 +2,6 @@ import {
     AuthToken,
     User,
     Status,
-    FakeData,
     LoadMoreStatusItemsResponse,
     LoadMoreStatusItemsRequest,
     PostStatusRequest,
