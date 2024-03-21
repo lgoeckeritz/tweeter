@@ -16,5 +16,11 @@ export {
     TweeterRequest,
     RegisterRequest,
     GetUserRequest,
+    LoadMoreStatusItemsRequest,
+    PostStatusRequest,
 } from "./model/net/Request";
-export { AuthenticateResponse, GetUserResponse } from "./model/net/Response";
+export {
+    AuthenticateResponse,
+    GetUserResponse,
+    LoadMoreStatusItemsResponse,
+} from "./model/net/Response";

@@ -6,10 +6,13 @@ import {
 import { ClientCommunicator } from "./ClientCommunicator";
 import {
     GetUserRequest,
+    LoadMoreStatusItemsRequest,
     LogoutRequest,
+    PostStatusRequest,
 } from "tweeter-shared/dist/model/net/Request";
 import {
     GetUserResponse,
+    LoadMoreStatusItemsResponse,
     TweeterResponse,
 } from "tweeter-shared/dist/model/net/Response";
 
@@ -55,6 +58,44 @@ export class ServerFacade {
         const endpoint = "/service/logout";
         const response: JSON =
             await this.clientCommunicator.doPost<LogoutRequest>(
+                request,
+                endpoint
+            );
+        return TweeterResponse.fromJson(response);
+    }
+
+    /**
+     * StatusService Server Calls
+     */
+
+    async loadMoreFeedItems(
+        request: LoadMoreStatusItemsRequest
+    ): Promise<LoadMoreStatusItemsResponse> {
+        const endpoint = "/service/loadMoreFeedItems";
+        const response: JSON =
+            await this.clientCommunicator.doPost<LoadMoreStatusItemsRequest>(
+                request,
+                endpoint
+            );
+        return LoadMoreStatusItemsResponse.fromJson(response);
+    }
+
+    async loadMoreStoryItems(
+        request: LoadMoreStatusItemsRequest
+    ): Promise<LoadMoreStatusItemsResponse> {
+        const endpoint = "/service/loadMoreStoryItems";
+        const response: JSON =
+            await this.clientCommunicator.doPost<LoadMoreStatusItemsRequest>(
+                request,
+                endpoint
+            );
+        return LoadMoreStatusItemsResponse.fromJson(response);
+    }
+
+    async postStatus(request: PostStatusRequest): Promise<TweeterResponse> {
+        const endpoint = "/service/postStatus";
+        const response: JSON =
+            await this.clientCommunicator.doPost<PostStatusRequest>(
                 request,
                 endpoint
             );

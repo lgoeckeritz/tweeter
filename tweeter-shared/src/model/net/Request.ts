@@ -1,7 +1,12 @@
 import { AuthToken } from "../domain/AuthToken";
+import { Status } from "../domain/Status";
+import { User } from "../domain/User";
 
 export class TweeterRequest {}
 
+/**
+ * UserService Requests
+ */
 export class GetUserRequest extends TweeterRequest {
     authToken: AuthToken;
     alias: string;
@@ -53,5 +58,40 @@ export class LogoutRequest extends TweeterRequest {
     constructor(token: AuthToken) {
         super();
         this.token = token;
+    }
+}
+
+/**
+ * StatusService Requests
+ */
+
+export class LoadMoreStatusItemsRequest extends TweeterRequest {
+    authToken: AuthToken;
+    user: User;
+    pageSize: number;
+    lastItem: Status | null;
+
+    constructor(
+        authToken: AuthToken,
+        user: User,
+        pageSize: number,
+        lastItem: Status | null
+    ) {
+        super();
+        this.authToken = authToken;
+        this.user = user;
+        this.pageSize = pageSize;
+        this.lastItem = lastItem;
+    }
+}
+
+export class PostStatusRequest extends TweeterRequest {
+    authToken: AuthToken;
+    newStatus: Status;
+
+    constructor(authToken: AuthToken, newStatus: Status) {
+        super();
+        this.authToken = authToken;
+        this.newStatus = newStatus;
     }
 }
