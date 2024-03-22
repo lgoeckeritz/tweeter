@@ -1,8 +1,6 @@
 import { AuthToken } from "../domain/AuthToken";
 import { Status } from "../domain/Status";
 import { User } from "../domain/User";
-import { AuthTokenDto } from "../dto/AuthTokenDto";
-import { UserDto } from "../dto/UserDto";
 
 //consider changing this to an interface like this: (check the slides for what it should actually look like)
 // export interface TweeterResponse {
@@ -39,11 +37,11 @@ interface ResponseJson {
 }
 
 export class GetUserResponse extends TweeterResponse {
-    private _user: UserDto | null;
+    private _user: User | null;
 
     constructor(
         success: boolean,
-        user: UserDto | null,
+        user: User | null,
         message: string | null = null
     ) {
         super(success, message);
@@ -83,13 +81,13 @@ export class GetUserResponse extends TweeterResponse {
 }
 
 export class AuthenticateResponse extends TweeterResponse {
-    private _user: UserDto;
-    private _token: AuthTokenDto;
+    private _user: User;
+    private _token: AuthToken;
 
     constructor(
         success: boolean,
-        user: UserDto,
-        token: AuthTokenDto,
+        user: User,
+        token: AuthToken,
         message: string | null = null
     ) {
         super(success, message);
@@ -150,12 +148,12 @@ export class AuthenticateResponse extends TweeterResponse {
  */
 
 export class LoadMoreStatusItemsResponse extends TweeterResponse {
-    private _pageOfStatuses: Status[];
+    private _pageOfStatuses: (Status | null)[];
     private _hasMoreItems: boolean;
 
     constructor(
         success: boolean,
-        pageOfStatuses: Status[],
+        pageOfStatuses: (Status | null)[],
         hasMoreItems: boolean,
         message: string | null = null
     ) {
@@ -164,7 +162,7 @@ export class LoadMoreStatusItemsResponse extends TweeterResponse {
         this._hasMoreItems = hasMoreItems;
     }
 
-    get pageOfStatuses(): Status[] {
+    get pageOfStatuses(): (Status | null)[] {
         return this._pageOfStatuses;
     }
 
@@ -181,10 +179,12 @@ export class LoadMoreStatusItemsResponse extends TweeterResponse {
         const jsonObject: LoadMoreStatusItemsResponseJson =
             json as unknown as LoadMoreStatusItemsResponseJson;
 
-        const deserializedPageOfStatuses: Status[] | null = JSON.parse(
-            JSON.stringify(jsonObject._pageOfStatuses)
-        );
+        const jsonArray: (Status | null)[] =
+            jsonObject._pageOfStatuses as unknown as Status[];
 
+        const deserializedPageOfStatuses = jsonArray.map((user) =>
+            Status.fromJson(JSON.stringify(user))
+        );
         if (deserializedPageOfStatuses === null) {
             throw new Error(
                 "LoadMoreFeedItemsResponse, could not deserialize user with json:\n" +
@@ -217,12 +217,12 @@ export class LoadMoreStatusItemsResponse extends TweeterResponse {
  */
 
 export class LoadMoreUserItemsResponse extends TweeterResponse {
-    private _pageOfUsers: User[];
+    private _pageOfUsers: (User | null)[];
     private _hasMoreItems: boolean;
 
     constructor(
         success: boolean,
-        pageOfUsers: User[],
+        pageOfUsers: (User | null)[],
         hasMoreItems: boolean,
         message: string | null = null
     ) {
@@ -231,7 +231,7 @@ export class LoadMoreUserItemsResponse extends TweeterResponse {
         this._hasMoreItems = hasMoreItems;
     }
 
-    get pageOfUsers(): User[] {
+    get pageOfUsers(): (User | null)[] {
         return this._pageOfUsers;
     }
 
@@ -248,8 +248,11 @@ export class LoadMoreUserItemsResponse extends TweeterResponse {
         const jsonObject: LoadMoreUserItemsResponseJson =
             json as unknown as LoadMoreUserItemsResponseJson;
 
-        const deserializedPageOfUsers: User[] | null = JSON.parse(
-            JSON.stringify(jsonObject._pageOfUsers)
+        const jsonArray: (User | null)[] =
+            jsonObject._pageOfUsers as unknown as User[];
+
+        const deserializedPageOfUsers = jsonArray.map((user) =>
+            User.fromJson(JSON.stringify(user))
         );
 
         if (deserializedPageOfUsers === null) {

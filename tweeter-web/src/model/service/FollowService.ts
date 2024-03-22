@@ -30,7 +30,10 @@ export class FollowService {
                     lastItem
                 )
             );
-        return [response.pageOfUsers, response.hasMoreItems]; //todo: convert response.pageOfStatuses to DTO
+        return [
+            response.pageOfUsers.map((dto) => User.fromDto(dto)!),
+            response.hasMoreItems,
+        ];
     }
 
     public async loadMoreFollowees(
@@ -48,7 +51,10 @@ export class FollowService {
                     lastItem
                 )
             );
-        return [response.pageOfUsers, response.hasMoreItems]; //todo: convert response.pageOfStatuses to DTO
+        return [
+            response.pageOfUsers.map((dto) => User.fromDto(dto)!),
+            response.hasMoreItems,
+        ];
     }
 
     public async getIsFollowerStatus(

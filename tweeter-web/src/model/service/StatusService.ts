@@ -26,7 +26,10 @@ export class StatusService {
                     lastItem
                 )
             );
-        return [response.pageOfStatuses, response.hasMoreItems]; //todo: convert response.pageOfStatuses to DTO
+        return [
+            response.pageOfStatuses.map((dto) => Status.fromDto(dto)!),
+            response.hasMoreItems,
+        ];
     }
 
     public async loadMoreStoryItems(
@@ -44,7 +47,10 @@ export class StatusService {
                     lastItem
                 )
             );
-        return [response.pageOfStatuses, response.hasMoreItems]; //todo: convert response.pageOfStatuses to DTO
+        return [
+            response.pageOfStatuses.map((dto) => Status.fromDto(dto)!),
+            response.hasMoreItems,
+        ];
     }
 
     public async postStatus(
