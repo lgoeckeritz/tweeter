@@ -26,10 +26,7 @@ export class StatusService {
                     lastItem
                 )
             );
-        return [
-            response.pageOfStatuses.map((dto) => Status.fromDto(dto)!),
-            response.hasMoreItems,
-        ];
+        return [response.pageOfStatuses, response.hasMoreItems];
     }
 
     public async loadMoreStoryItems(
@@ -47,10 +44,7 @@ export class StatusService {
                     lastItem
                 )
             );
-        return [
-            response.pageOfStatuses.map((dto) => Status.fromDto(dto)!),
-            response.hasMoreItems,
-        ];
+        return [response.pageOfStatuses, response.hasMoreItems];
     }
 
     public async postStatus(

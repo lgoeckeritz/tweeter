@@ -148,12 +148,12 @@ export class AuthenticateResponse extends TweeterResponse {
  */
 
 export class LoadMoreStatusItemsResponse extends TweeterResponse {
-    private _pageOfStatuses: (Status | null)[];
+    private _pageOfStatuses: Status[];
     private _hasMoreItems: boolean;
 
     constructor(
         success: boolean,
-        pageOfStatuses: (Status | null)[],
+        pageOfStatuses: Status[],
         hasMoreItems: boolean,
         message: string | null = null
     ) {
@@ -162,7 +162,7 @@ export class LoadMoreStatusItemsResponse extends TweeterResponse {
         this._hasMoreItems = hasMoreItems;
     }
 
-    get pageOfStatuses(): (Status | null)[] {
+    get pageOfStatuses(): Status[] {
         return this._pageOfStatuses;
     }
 
@@ -179,12 +179,13 @@ export class LoadMoreStatusItemsResponse extends TweeterResponse {
         const jsonObject: LoadMoreStatusItemsResponseJson =
             json as unknown as LoadMoreStatusItemsResponseJson;
 
-        const jsonArray: (Status | null)[] =
+        const jsonArray: Status[] =
             jsonObject._pageOfStatuses as unknown as Status[];
 
-        const deserializedPageOfStatuses = jsonArray.map((user) =>
-            Status.fromJson(JSON.stringify(user))
-        );
+        const deserializedPageOfStatuses = jsonArray
+            .map((user) => Status.fromJson(JSON.stringify(user)))
+            .filter((status) => status !== null) as Status[];
+
         if (deserializedPageOfStatuses === null) {
             throw new Error(
                 "LoadMoreFeedItemsResponse, could not deserialize user with json:\n" +
@@ -217,12 +218,12 @@ export class LoadMoreStatusItemsResponse extends TweeterResponse {
  */
 
 export class LoadMoreUserItemsResponse extends TweeterResponse {
-    private _pageOfUsers: (User | null)[];
+    private _pageOfUsers: User[];
     private _hasMoreItems: boolean;
 
     constructor(
         success: boolean,
-        pageOfUsers: (User | null)[],
+        pageOfUsers: User[],
         hasMoreItems: boolean,
         message: string | null = null
     ) {
@@ -231,7 +232,7 @@ export class LoadMoreUserItemsResponse extends TweeterResponse {
         this._hasMoreItems = hasMoreItems;
     }
 
-    get pageOfUsers(): (User | null)[] {
+    get pageOfUsers(): User[] {
         return this._pageOfUsers;
     }
 
@@ -248,12 +249,11 @@ export class LoadMoreUserItemsResponse extends TweeterResponse {
         const jsonObject: LoadMoreUserItemsResponseJson =
             json as unknown as LoadMoreUserItemsResponseJson;
 
-        const jsonArray: (User | null)[] =
-            jsonObject._pageOfUsers as unknown as User[];
+        const jsonArray: User[] = jsonObject._pageOfUsers as unknown as User[];
 
-        const deserializedPageOfUsers = jsonArray.map((user) =>
-            User.fromJson(JSON.stringify(user))
-        );
+        const deserializedPageOfUsers = jsonArray
+            .map((user) => User.fromJson(JSON.stringify(user)))
+            .filter((user) => user !== null) as User[];
 
         if (deserializedPageOfUsers === null) {
             throw new Error(

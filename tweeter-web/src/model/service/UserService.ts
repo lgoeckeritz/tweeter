@@ -23,7 +23,7 @@ export class UserService {
         let userResponse: GetUserResponse = await this.serverFacade.getUser(
             new GetUserRequest(authToken, alias)
         );
-        return User.fromDto(userResponse.user)!;
+        return userResponse.user;
     }
 
     public async login(
@@ -33,10 +33,7 @@ export class UserService {
         let authResponse: AuthenticateResponse = await this.serverFacade.login(
             new LoginRequest(alias, password)
         );
-        return [
-            User.fromDto(authResponse.user)!,
-            AuthToken.fromDto(authResponse.token)!,
-        ];
+        return [authResponse.user, authResponse.token];
     }
 
     public async register(
@@ -61,10 +58,7 @@ export class UserService {
                 )
             );
 
-        return [
-            User.fromDto(authResponse.user)!,
-            AuthToken.fromDto(authResponse.token)!,
-        ];
+        return [authResponse.user, authResponse.token];
     }
 
     public async logout(authToken: AuthToken): Promise<void> {

@@ -1,7 +1,6 @@
 import {
     AuthToken,
     User,
-    FakeData,
     LoadMoreUserItemsResponse,
     LoadMoreUserItemsRequest,
     GetIsFollowerStatusResponse,
@@ -30,10 +29,7 @@ export class FollowService {
                     lastItem
                 )
             );
-        return [
-            response.pageOfUsers.map((dto) => User.fromDto(dto)!),
-            response.hasMoreItems,
-        ];
+        return [response.pageOfUsers, response.hasMoreItems];
     }
 
     public async loadMoreFollowees(
@@ -51,10 +47,7 @@ export class FollowService {
                     lastItem
                 )
             );
-        return [
-            response.pageOfUsers.map((dto) => User.fromDto(dto)!),
-            response.hasMoreItems,
-        ];
+        return [response.pageOfUsers, response.hasMoreItems];
     }
 
     public async getIsFollowerStatus(
