@@ -26,14 +26,14 @@ export class Follow {
         this._followee = value;
     }
 
-    public static fromDto(dto: FollowDto | null | undefined): Follow | null {
-        return dto ? new Follow(dto.follower, dto.followee) : null;
-    }
+    // public static fromDto(dto: FollowDto | null | undefined): Follow | null {
+    //     return dto ? new Follow(dto.follower, dto.followee) : null;
+    // }
 
-    public get dto(): FollowDto {
-        return {
-            follower: this.follower,
-            followee: this.followee,
-        };
-    }
+    // public get dto(): FollowDto {
+    //     return {
+    //         follower: this.follower,
+    //         followee: this.followee,
+    //     };
+    // }
 }

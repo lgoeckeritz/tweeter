@@ -81,18 +81,18 @@ export class User {
         return JSON.stringify(this);
     }
 
-    public static fromDto(dto: UserDto | null | undefined): User | null {
-        return dto
-            ? new User(dto.firstName, dto.lastName, dto.alias, dto.imageUrl)
-            : null;
-    }
+    // public static fromDto(dto: UserDto | null | undefined): User | null {
+    //     return dto
+    //         ? new User(dto.firstName, dto.lastName, dto.alias, dto.imageUrl)
+    //         : null;
+    // }
 
-    public get dto(): UserDto {
-        return {
-            firstName: this.firstName,
-            lastName: this.lastName,
-            alias: this.alias,
-            imageUrl: this.imageUrl,
-        };
-    }
+    // public get dto(): UserDto {
+    //     return {
+    //         firstName: this.firstName,
+    //         lastName: this.lastName,
+    //         alias: this.alias,
+    //         imageUrl: this.imageUrl,
+    //     };
+    // }
 }

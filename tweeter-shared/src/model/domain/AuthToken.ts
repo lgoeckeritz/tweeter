@@ -64,16 +64,16 @@ export class AuthToken {
         return JSON.stringify(this);
     }
 
-    public static fromDto(
-        dto: AuthTokenDto | null | undefined
-    ): AuthToken | null {
-        return dto ? new AuthToken(dto.token, dto.timestamp) : null;
-    }
+    // public static fromDto(
+    //     dto: AuthTokenDto | null | undefined
+    // ): AuthToken | null {
+    //     return dto ? new AuthToken(dto.token, dto.timestamp) : null;
+    // }
 
-    public get dto(): AuthTokenDto {
-        return {
-            token: this.token,
-            timestamp: this.timestamp,
-        };
-    }
+    // public get dto(): AuthTokenDto {
+    //     return {
+    //         token: this.token,
+    //         timestamp: this.timestamp,
+    //     };
+    // }
 }
