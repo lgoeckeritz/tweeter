@@ -183,7 +183,7 @@ export class LoadMoreStatusItemsResponse extends TweeterResponse {
             jsonObject._pageOfStatuses as unknown as Status[];
 
         const deserializedPageOfStatuses = jsonArray
-            .map((user) => Status.fromJson(JSON.stringify(user)))
+            .map((status) => Status.fromJson(JSON.stringify(status)))
             .filter((status) => status !== null) as Status[];
 
         if (deserializedPageOfStatuses === null) {
