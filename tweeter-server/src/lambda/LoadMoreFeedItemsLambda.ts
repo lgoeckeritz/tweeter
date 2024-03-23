@@ -7,6 +7,7 @@ import { StatusService } from "../model/service/StatusService";
 export const handler = async (
     event: LoadMoreStatusItemsRequest
 ): Promise<LoadMoreStatusItemsResponse> => {
+    console.log(event.lastItem);
     let response = new LoadMoreStatusItemsResponse(
         true,
         ...(await new StatusService().loadMoreFeedItems(
