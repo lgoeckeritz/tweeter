@@ -13,7 +13,19 @@ exports.handler = void 0;
 const tweeter_shared_1 = require("tweeter-shared");
 const UserService_1 = require("../model/service/UserService");
 const handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
+    if (event.password == null) {
+        throw new Error("[Bad Request] requested password is null");
+    }
+    if (event.username == null) {
+        throw new Error("[Bad Request] requested username is null");
+    }
     let response = new tweeter_shared_1.AuthenticateResponse(true, ...(yield new UserService_1.UserService().login(event.username, event.password)));
+    if (response.user == null) {
+        throw new Error("[Server Error] could not complete request");
+    }
+    if (response.token == null) {
+        throw new Error("[Server Error] could not complete request");
+    }
     return response;
 });
 exports.handler = handler;
