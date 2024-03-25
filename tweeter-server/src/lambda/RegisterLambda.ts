@@ -4,6 +4,7 @@ import { UserService } from "../model/service/UserService";
 export const handler = async (
     event: RegisterRequest
 ): Promise<AuthenticateResponse> => {
+    //todo: move these errors up to the services
     if (event.alias == null) {
         throw new Error("[Bad Request] requested alias is null");
     }
