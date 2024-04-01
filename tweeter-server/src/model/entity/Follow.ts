@@ -1,4 +1,6 @@
-export class Follow {
+import { Entity } from "./Entity";
+
+export class Follow extends Entity {
     followerHandle: string;
     followerName: string;
     followeeHandle: string;
@@ -10,6 +12,7 @@ export class Follow {
         followeeHandle: string,
         followeeName: string
     ) {
+        super();
         this.followerHandle = followerHandle;
         this.followerName = followerName;
         this.followeeHandle = followeeHandle;

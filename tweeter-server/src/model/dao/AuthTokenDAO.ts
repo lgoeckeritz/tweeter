@@ -3,7 +3,6 @@ import {
     DynamoDBDocumentClient,
     GetCommand,
     PutCommand,
-    QueryCommand,
     UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
