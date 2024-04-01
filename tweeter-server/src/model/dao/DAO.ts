@@ -11,21 +11,13 @@ import { Entity } from "../entity/Entity";
 
 export abstract class DAO<T extends Entity> {
     readonly tableName: string;
-    readonly updateExpression: string;
-    readonly expressionAttributes: Record<string, string>; //maybe any? idk
 
     protected readonly client = DynamoDBDocumentClient.from(
         new DynamoDBClient()
     );
 
-    constructor(
-        tableName: string,
-        updateExpression: string,
-        expressionAttributes: Record<string, string>
-    ) {
+    constructor(tableName: string) {
         this.tableName = tableName;
-        this.updateExpression = updateExpression;
-        this.expressionAttributes = expressionAttributes;
     }
 
     async recordItem(entity: T): Promise<void> {
@@ -55,8 +47,9 @@ export abstract class DAO<T extends Entity> {
         const params = {
             TableName: this.tableName,
             Key: this.generateItem(entity),
-            UpdateExpression: this.updateExpression,
-            ExpressionAttributeValues: this.expressionAttributes,
+            UpdateExpression: this.getUpdateExpression(entity),
+            ExpressionAttributeValues:
+                this.getExpressionAttributeValues(entity),
         };
         await this.client.send(new UpdateCommand(params));
     }
@@ -83,4 +76,8 @@ export abstract class DAO<T extends Entity> {
     abstract generateItem(entity: T): any;
 
     abstract generatePutItem(entity: T): any; // maybe Record<string, string> ?
+
+    abstract getUpdateExpression(entity: T): string;
+
+    abstract getExpressionAttributeValues(entity: T): any;
 }
