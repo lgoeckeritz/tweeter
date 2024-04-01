@@ -1,8 +1,8 @@
 import { GetCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { AuthToken } from "../entity/AuthToken";
-import { DAO } from "./DAO";
+import { DDBDAO } from "./DDBDAO";
 
-export class AuthTokenDAO extends DAO<AuthToken> {
+export class AuthTokenDAO extends DDBDAO<AuthToken> {
     readonly token = "token";
     readonly timestamp = "timestamp";
 
