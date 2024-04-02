@@ -1,4 +1,4 @@
-import { User, AuthToken, FakeData } from "tweeter-shared";
+import { User, AuthToken } from "tweeter-shared";
 import { AuthTokenDAO } from "../dao/interface/AuthTokenDAO";
 import { DAOFactory } from "../dao/interface/DAOFactory";
 import { UsersDAO } from "../dao/interface/UsersDAO";
@@ -20,7 +20,7 @@ export class UserService {
         alias: string
     ): Promise<User | null> {
         const authenticated: boolean = await this.authTokenDAO.authenticate(
-            authToken
+            authToken.token
         );
 
         if (authenticated) {
@@ -40,7 +40,7 @@ export class UserService {
         if (user !== null) {
             //generate and store authToken
             const authToken: AuthToken = AuthToken.Generate();
-            this.authTokenDAO.recordAuthToken(authToken);
+            this.authTokenDAO.recordAuthToken(authToken, alias);
 
             return [user, authToken];
         } else {
@@ -68,7 +68,7 @@ export class UserService {
         if (user !== null) {
             //generate and store authToken
             const authToken: AuthToken = AuthToken.Generate();
-            this.authTokenDAO.recordAuthToken(authToken);
+            this.authTokenDAO.recordAuthToken(authToken, alias);
 
             return [user, authToken];
         } else {
@@ -77,6 +77,6 @@ export class UserService {
     }
 
     public async logout(authToken: AuthToken): Promise<void> {
-        await this.authTokenDAO.deleteAuthToken(authToken);
+        await this.authTokenDAO.deleteAuthToken(authToken.token);
     }
 }

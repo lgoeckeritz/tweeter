@@ -22,7 +22,7 @@ export class StatusService {
     ): Promise<[Status[], boolean]> {
         // return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
         const authenticated: boolean = await this.authTokenDAO.authenticate(
-            authToken
+            authToken.token
         );
 
         if (authenticated) {
@@ -42,7 +42,7 @@ export class StatusService {
     ): Promise<[Status[], boolean]> {
         // return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
         const authenticated: boolean = await this.authTokenDAO.authenticate(
-            authToken
+            authToken.token
         );
 
         if (authenticated) {
@@ -59,7 +59,7 @@ export class StatusService {
         newStatus: Status
     ): Promise<void> {
         const authenticated: boolean = await this.authTokenDAO.authenticate(
-            authToken
+            authToken.token
         );
 
         if (authenticated) {

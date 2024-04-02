@@ -1,21 +1,27 @@
-import { DataPage } from "../../entity/DataPage";
-import { FollowEntity } from "../../entity/FollowEntity";
+import { User } from "tweeter-shared";
 
-//TODO: look into cutting out the names from Follow
 export interface FollowsDAO {
     getPageOfFollowers(
         followeeHandle: string,
         pageSize: number,
         lastFollowerHandle: string | undefined
-    ): Promise<DataPage<FollowEntity>>;
+    ): Promise<[User[], boolean]>;
     getPageOfFollowees(
         followerHandle: string,
         pageSize: number,
         lastFolloweeHandle: string | undefined
-    ): Promise<DataPage<FollowEntity>>;
+    ): Promise<[User[], boolean]>;
     getFolloweesCount(followeeHandle: string): Promise<number>;
     getFollowersCount(followerHandle: string): Promise<number>;
-    recordFollow(follow: FollowEntity): Promise<void>;
-    getFollow(follow: FollowEntity): Promise<FollowEntity | undefined>;
-    deleteFollow(follow: FollowEntity): Promise<void>;
+    recordFollow(
+        followerHandle: string,
+        followerName: string,
+        followeeHandle: string,
+        followeeName: string
+    ): Promise<void>;
+    getIsFollow(
+        followerHandle: string,
+        followeeHandle: string
+    ): Promise<boolean>;
+    deleteFollow(followerHandle: string, followeeHandle: string): Promise<void>;
 }
