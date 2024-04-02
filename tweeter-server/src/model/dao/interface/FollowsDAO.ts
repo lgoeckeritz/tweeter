@@ -1,27 +1,21 @@
 import { User } from "tweeter-shared";
+import { FollowEntity } from "../../entity/FollowEntity";
+import { DataPage } from "../../entity/DataPage";
 
 export interface FollowsDAO {
     getPageOfFollowers(
         followeeHandle: string,
         pageSize: number,
         lastFollowerHandle: string | undefined
-    ): Promise<[User[], boolean]>;
+    ): Promise<DataPage<FollowEntity>>;
     getPageOfFollowees(
         followerHandle: string,
         pageSize: number,
         lastFolloweeHandle: string | undefined
-    ): Promise<[User[], boolean]>;
+    ): Promise<DataPage<FollowEntity>>;
     getFolloweesCount(followeeHandle: string): Promise<number>;
     getFollowersCount(followerHandle: string): Promise<number>;
-    recordFollow(
-        followerHandle: string,
-        followerName: string,
-        followeeHandle: string,
-        followeeName: string
-    ): Promise<void>;
-    getIsFollow(
-        followerHandle: string,
-        followeeHandle: string
-    ): Promise<boolean>;
-    deleteFollow(followerHandle: string, followeeHandle: string): Promise<void>;
+    recordFollow(follow: FollowEntity): Promise<void>;
+    getFollow(follow: FollowEntity): Promise<FollowEntity | undefined>;
+    deleteFollow(follow: FollowEntity): Promise<void>;
 }

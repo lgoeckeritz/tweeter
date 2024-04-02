@@ -2,6 +2,8 @@ import { AuthToken, User } from "tweeter-shared";
 import { AuthTokenDAO } from "../dao/interface/AuthTokenDAO";
 import { DAOFactory } from "../dao/interface/DAOFactory";
 import { FollowsDAO } from "../dao/interface/FollowsDAO";
+import { DataPage } from "../entity/DataPage";
+import { FollowEntity } from "../entity/FollowEntity";
 import { UsersDAO } from "../dao/interface/UsersDAO";
 
 export class FollowService {
@@ -26,11 +28,22 @@ export class FollowService {
         );
 
         if (authenticated) {
-            return this.followsDAO.getPageOfFollowers(
+            const pageOfFollowers = await this.followsDAO.getPageOfFollowers(
                 user.alias,
                 pageSize,
                 lastItem?.alias
             );
+            // converting to array of user's followers
+            const followers: User[] = [];
+            for (let i = 0; i < pageOfFollowers.values.length; i++) {
+                const followerHandle = pageOfFollowers.values[i].followerHandle;
+                const follower = await this.usersDAO.getUser(followerHandle);
+                if (follower !== null) {
+                    followers.push(follower);
+                }
+            }
+
+            return [followers, pageOfFollowers.hasMorePages];
         } else {
             throw new Error(
                 "[Forbidden Error] authtoken either doesn't exist or is timed out"
@@ -49,11 +62,23 @@ export class FollowService {
         );
 
         if (authenticated) {
-            return this.followsDAO.getPageOfFollowees(
-                user.alias,
-                pageSize,
-                lastItem?.alias
-            );
+            const pageOfFollowees: DataPage<FollowEntity> =
+                await this.followsDAO.getPageOfFollowees(
+                    user.alias,
+                    pageSize,
+                    lastItem?.alias
+                );
+            // converting to array of user's followees
+            const followees: User[] = [];
+            for (let i = 0; i < pageOfFollowees.values.length; i++) {
+                const followeeHandle = pageOfFollowees.values[i].followeeHandle;
+                const followee = await this.usersDAO.getUser(followeeHandle);
+                if (followee !== null) {
+                    followees.push(followee);
+                }
+            }
+
+            return [followees, pageOfFollowees.hasMorePages];
         } else {
             throw new Error(
                 "[Forbidden Error] authtoken either doesn't exist or is timed out"
@@ -71,7 +96,21 @@ export class FollowService {
         );
 
         if (authenticated) {
-            return this.followsDAO.getIsFollow(user.alias, selectedUser.alias);
+            //may have to be updated to first and last names?
+            const follow = new FollowEntity(
+                user.alias,
+                user.firstName,
+                selectedUser.alias,
+                selectedUser.firstName
+            );
+            const result: FollowEntity | undefined =
+                await this.followsDAO.getFollow(follow);
+
+            if (result !== undefined) {
+                return true;
+            } else {
+                return false;
+            }
         } else {
             throw new Error(
                 "[Forbidden Error] authtoken either doesn't exist or is timed out"
@@ -132,15 +171,23 @@ export class FollowService {
             );
             const user = await this.usersDAO.getUser(userHandle);
             await this.followsDAO.recordFollow(
-                user!.alias,
-                user!.firstName,
-                userToFollow.alias,
-                userToFollow.firstName
+                new FollowEntity(
+                    user!.alias,
+                    user!.firstName,
+                    userToFollow.alias,
+                    userToFollow.firstName
+                )
             );
-            return [
-                await this.followsDAO.getFollowersCount(userHandle),
-                await this.followsDAO.getFolloweesCount(userHandle),
-            ];
+            let followersCount = await this.getFollowersCount(
+                authToken,
+                userToFollow
+            );
+            let followeesCount = await this.getFolloweesCount(
+                authToken,
+                userToFollow
+            );
+
+            return [followersCount, followeesCount];
         } else {
             throw new Error(
                 "[Forbidden Error] authtoken either doesn't exist or is timed out"
@@ -161,14 +208,25 @@ export class FollowService {
             const userHandle = await this.authTokenDAO.getAuthTokenHandle(
                 authToken.token
             );
+            const user = await this.usersDAO.getUser(userHandle);
             await this.followsDAO.deleteFollow(
-                userHandle,
-                userToUnfollow.alias
+                new FollowEntity(
+                    user!.alias,
+                    user!.firstName,
+                    userToUnfollow.alias,
+                    userToUnfollow.firstName
+                )
             );
-            return [
-                await this.followsDAO.getFollowersCount(userHandle),
-                await this.followsDAO.getFolloweesCount(userHandle),
-            ];
+            let followersCount = await this.getFollowersCount(
+                authToken,
+                userToUnfollow
+            );
+            let followeesCount = await this.getFolloweesCount(
+                authToken,
+                userToUnfollow
+            );
+
+            return [followersCount, followeesCount];
         } else {
             throw new Error(
                 "[Forbidden Error] authtoken either doesn't exist or is timed out"
