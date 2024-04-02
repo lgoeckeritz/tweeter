@@ -1,6 +1,7 @@
 import { Entity } from "./Entity";
 
-export class Follow extends Entity {
+//TODO: consider removing the followername and followeename as they haven't been used yet
+export class FollowEntity extends Entity {
     followerHandle: string;
     followerName: string;
     followeeHandle: string;

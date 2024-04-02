@@ -1,5 +1,5 @@
 import { DataPage } from "../../entity/DataPage";
-import { Follow } from "../../entity/Follow";
+import { FollowEntity } from "../../entity/FollowEntity";
 
 //TODO: look into cutting out the names from Follow
 export interface FollowsDAO {
@@ -7,15 +7,15 @@ export interface FollowsDAO {
         followeeHandle: string,
         pageSize: number,
         lastFollowerHandle: string | undefined
-    ): Promise<DataPage<Follow>>;
+    ): Promise<DataPage<FollowEntity>>;
     getPageOfFollowees(
         followerHandle: string,
         pageSize: number,
         lastFolloweeHandle: string | undefined
-    ): Promise<DataPage<Follow>>;
+    ): Promise<DataPage<FollowEntity>>;
     getFolloweesCount(followeeHandle: string): Promise<number>;
     getFollowersCount(followerHandle: string): Promise<number>;
-    recordFollow(follow: Follow): Promise<void>;
-    getFollow(follow: Follow): Promise<Follow | undefined>;
-    deleteFollow(follow: Follow): Promise<void>;
+    recordFollow(follow: FollowEntity): Promise<void>;
+    getFollow(follow: FollowEntity): Promise<FollowEntity | undefined>;
+    deleteFollow(follow: FollowEntity): Promise<void>;
 }

@@ -7,7 +7,7 @@ import {
     UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { Follow } from "../entity/Follow";
+import { Follow } from "../entity/FollowEntity";
 import { DataPage } from "../entity/DataPage";
 
 export class FollowsDAO {

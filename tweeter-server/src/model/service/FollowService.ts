@@ -3,7 +3,7 @@ import { AuthTokenDAO } from "../dao/interface/AuthTokenDAO";
 import { DAOFactory } from "../dao/interface/DAOFactory";
 import { FollowsDAO } from "../dao/interface/FollowsDAO";
 import { DataPage } from "../entity/DataPage";
-import { Follow } from "../entity/Follow";
+import { FollowEntity } from "../entity/FollowEntity";
 import { UsersDAO } from "../dao/interface/UsersDAO";
 
 export class FollowService {
@@ -28,7 +28,7 @@ export class FollowService {
         );
 
         if (authenticated) {
-            const pageOfFollowers: DataPage<Follow> =
+            const pageOfFollowers: DataPage<FollowEntity> =
                 await this.followsDAO.getPageOfFollowers(
                     user.alias,
                     pageSize,
@@ -63,7 +63,7 @@ export class FollowService {
         );
 
         if (authenticated) {
-            const pageOfFollowees: DataPage<Follow> =
+            const pageOfFollowees: DataPage<FollowEntity> =
                 await this.followsDAO.getPageOfFollowees(
                     user.alias,
                     pageSize,
@@ -98,15 +98,14 @@ export class FollowService {
 
         if (authenticated) {
             //may have to be updated to first and last names?
-            const follow = new Follow(
+            const follow = new FollowEntity(
                 user.alias,
                 user.firstName,
                 selectedUser.alias,
                 selectedUser.firstName
             );
-            const result: Follow | undefined = await this.followsDAO.getFollow(
-                follow
-            );
+            const result: FollowEntity | undefined =
+                await this.followsDAO.getFollow(follow);
 
             if (result !== undefined) {
                 return true;
@@ -156,6 +155,7 @@ export class FollowService {
 
     //TODO: the handler all the way down to UserInfo.tsx needs to be changed to send up the user too
     //TODO: look into just storing the user's handle with an authtoken so a user doesn't have to be passed up
+    //TODO: also store a number of followers and followees in the user table for a quick way to get number of followers
     public async follow(
         authToken: AuthToken,
         user: User,
@@ -167,7 +167,7 @@ export class FollowService {
 
         if (authenticated) {
             await this.followsDAO.recordFollow(
-                new Follow(
+                new FollowEntity(
                     user.alias,
                     user.firstName,
                     userToFollow.alias,
@@ -203,7 +203,7 @@ export class FollowService {
 
         if (authenticated) {
             await this.followsDAO.deleteFollow(
-                new Follow(
+                new FollowEntity(
                     user.alias,
                     user.firstName,
                     userToUnfollow.alias,
