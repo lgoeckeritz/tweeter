@@ -3,6 +3,8 @@ import { AuthTokenDAO } from "../dao/interface/AuthTokenDAO";
 import { DAOFactory } from "../dao/interface/DAOFactory";
 import { UsersDAO } from "../dao/interface/UsersDAO";
 import { ImageDAO } from "../dao/interface/ImageDAO";
+import { UserEntity } from "../entity/UserEntity";
+import { AuthTokenEntity } from "../entity/AuthTokenEntity";
 
 export class UserService {
     private authTokenDAO: AuthTokenDAO;
@@ -24,7 +26,19 @@ export class UserService {
         );
 
         if (authenticated) {
-            return this.usersDAO.getUser(alias);
+            const userEntity: UserEntity | null = await this.usersDAO.getUser(
+                alias
+            );
+            if (userEntity !== null) {
+                return new User(
+                    userEntity.firstName,
+                    userEntity.lastName,
+                    userEntity.alias,
+                    userEntity.imageUrl
+                );
+            } else {
+                return null;
+            }
         } else {
             throw new Error(
                 "[Forbidden Error] authtoken either doesn't exist or is timed out"
@@ -36,11 +50,24 @@ export class UserService {
         alias: string,
         password: string
     ): Promise<[User, AuthToken]> {
-        const user = await this.usersDAO.loginUser(alias, password);
-        if (user !== null) {
+        const userEntity: UserEntity | null = await this.usersDAO.loginUser(
+            alias,
+            password
+        );
+        if (userEntity !== null) {
             //generate and store authToken
             const authToken: AuthToken = AuthToken.Generate();
-            this.authTokenDAO.recordAuthToken(authToken, alias);
+            this.authTokenDAO.recordAuthToken(
+                new AuthTokenEntity(authToken.token, authToken.timestamp, alias)
+            );
+
+            //generating user from userEntity
+            const user = new User(
+                userEntity.firstName,
+                userEntity.lastName,
+                userEntity.alias,
+                userEntity.imageUrl
+            );
 
             return [user, authToken];
         } else {
@@ -58,17 +85,27 @@ export class UserService {
         //converting image string to image url
         const imageUrl = await this.imageDAO.putImage(alias, imageStringBase64);
 
-        const user = await this.usersDAO.registerUser(
+        const userEntity: UserEntity | null = await this.usersDAO.registerUser(
             firstName,
             lastName,
             alias,
             password,
             imageUrl
         );
-        if (user !== null) {
+        if (userEntity !== null) {
             //generate and store authToken
             const authToken: AuthToken = AuthToken.Generate();
-            this.authTokenDAO.recordAuthToken(authToken, alias);
+            this.authTokenDAO.recordAuthToken(
+                new AuthTokenEntity(authToken.token, authToken.timestamp, alias)
+            );
+
+            //generating user from userEntity
+            const user = new User(
+                userEntity.firstName,
+                userEntity.lastName,
+                userEntity.alias,
+                userEntity.imageUrl
+            );
 
             return [user, authToken];
         } else {

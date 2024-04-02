@@ -81,9 +81,7 @@ export class DDBFollowsDAO implements FollowsDAO {
         await this.client.send(new UpdateCommand(params));
     }
 
-    private async getFollow(
-        follow: FollowEntity
-    ): Promise<FollowEntity | undefined> {
+    async getFollow(follow: FollowEntity): Promise<FollowEntity | undefined> {
         const params = {
             TableName: this.tableName,
             Key: this.generateFollowItem(follow),

@@ -1,6 +1,6 @@
 import { GetCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { AuthTokenEntity } from "../entity/AuthTokenEntity";
-import { DDBDAO } from "./DDBDAO";
+import { DDBDAO } from "./DynamoDB/DDBDAO";
 
 export class AuthTokenDAO extends DDBDAO<AuthTokenEntity> {
     readonly token = "token";

@@ -7,10 +7,9 @@ import {
     UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { Entity } from "../entity/Entity";
-import { DAO } from "./interface/DAO";
+import { Entity } from "../../entity/Entity";
 
-export abstract class DDBDAO<T extends Entity> implements DAO<T> {
+export abstract class DDBDAO<T extends Entity> {
     readonly tableName: string;
 
     protected readonly client = DynamoDBDocumentClient.from(
@@ -21,6 +20,7 @@ export abstract class DDBDAO<T extends Entity> implements DAO<T> {
         this.tableName = tableName;
     }
 
+    //might not be needed?
     async recordItem(entity: T): Promise<void> {
         //load if it doesn't exist
         const itemInDatabase: T | undefined = await this.getItem(entity);

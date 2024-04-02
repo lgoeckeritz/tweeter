@@ -5,6 +5,7 @@ import { FollowsDAO } from "../dao/interface/FollowsDAO";
 import { DataPage } from "../entity/DataPage";
 import { FollowEntity } from "../entity/FollowEntity";
 import { UsersDAO } from "../dao/interface/UsersDAO";
+import { UserEntity } from "../entity/UserEntity";
 
 export class FollowService {
     private authTokenDAO: AuthTokenDAO;
@@ -37,8 +38,15 @@ export class FollowService {
             const followers: User[] = [];
             for (let i = 0; i < pageOfFollowers.values.length; i++) {
                 const followerHandle = pageOfFollowers.values[i].followerHandle;
-                const follower = await this.usersDAO.getUser(followerHandle);
-                if (follower !== null) {
+                const userEntity: UserEntity | null =
+                    await this.usersDAO.getUser(followerHandle);
+                if (userEntity !== null) {
+                    const follower = new User(
+                        userEntity.firstName,
+                        userEntity.lastName,
+                        userEntity.alias,
+                        userEntity.imageUrl
+                    );
                     followers.push(follower);
                 }
             }
@@ -72,8 +80,15 @@ export class FollowService {
             const followees: User[] = [];
             for (let i = 0; i < pageOfFollowees.values.length; i++) {
                 const followeeHandle = pageOfFollowees.values[i].followeeHandle;
-                const followee = await this.usersDAO.getUser(followeeHandle);
-                if (followee !== null) {
+                const userEntity: UserEntity | null =
+                    await this.usersDAO.getUser(followeeHandle);
+                if (userEntity !== null) {
+                    const followee = new User(
+                        userEntity.firstName,
+                        userEntity.lastName,
+                        userEntity.alias,
+                        userEntity.imageUrl
+                    );
                     followees.push(followee);
                 }
             }
@@ -127,7 +142,14 @@ export class FollowService {
         );
 
         if (authenticated) {
-            return this.followsDAO.getFolloweesCount(user.alias);
+            const userEntity: UserEntity | null = await this.usersDAO.getUser(
+                user.alias
+            );
+            if (userEntity !== null) {
+                return userEntity.numFollowees;
+            } else {
+                throw new Error("[Server Error] couldn't find user");
+            }
         } else {
             throw new Error(
                 "[Forbidden Error] authtoken either doesn't exist or is timed out"
@@ -144,7 +166,14 @@ export class FollowService {
         );
 
         if (authenticated) {
-            return this.followsDAO.getFollowersCount(user.alias);
+            const userEntity: UserEntity | null = await this.usersDAO.getUser(
+                user.alias
+            );
+            if (userEntity !== null) {
+                return userEntity.numFollowers;
+            } else {
+                throw new Error("[Server Error] couldn't find user");
+            }
         } else {
             throw new Error(
                 "[Forbidden Error] authtoken either doesn't exist or is timed out"
@@ -169,25 +198,20 @@ export class FollowService {
             const userHandle = await this.authTokenDAO.getAuthTokenHandle(
                 authToken.token
             );
-            const user = await this.usersDAO.getUser(userHandle);
+            const userEntity = await this.usersDAO.getUser(userHandle);
+            if (userEntity === null) {
+                throw new Error("[Server Error] couldn't find user");
+            }
             await this.followsDAO.recordFollow(
                 new FollowEntity(
-                    user!.alias,
-                    user!.firstName,
+                    userEntity.alias,
+                    userEntity.firstName,
                     userToFollow.alias,
                     userToFollow.firstName
                 )
             );
-            let followersCount = await this.getFollowersCount(
-                authToken,
-                userToFollow
-            );
-            let followeesCount = await this.getFolloweesCount(
-                authToken,
-                userToFollow
-            );
 
-            return [followersCount, followeesCount];
+            return [userEntity.numFollowers, userEntity.numFollowees];
         } else {
             throw new Error(
                 "[Forbidden Error] authtoken either doesn't exist or is timed out"
@@ -208,25 +232,21 @@ export class FollowService {
             const userHandle = await this.authTokenDAO.getAuthTokenHandle(
                 authToken.token
             );
-            const user = await this.usersDAO.getUser(userHandle);
+            const userEntity: UserEntity | null = await this.usersDAO.getUser(
+                userHandle
+            );
+            if (userEntity === null) {
+                throw new Error("[Server Error] couldn't find user");
+            }
             await this.followsDAO.deleteFollow(
                 new FollowEntity(
-                    user!.alias,
-                    user!.firstName,
+                    userEntity.alias,
+                    userEntity.firstName,
                     userToUnfollow.alias,
                     userToUnfollow.firstName
                 )
             );
-            let followersCount = await this.getFollowersCount(
-                authToken,
-                userToUnfollow
-            );
-            let followeesCount = await this.getFolloweesCount(
-                authToken,
-                userToUnfollow
-            );
-
-            return [followersCount, followeesCount];
+            return [userEntity.numFollowers, userEntity.numFollowees];
         } else {
             throw new Error(
                 "[Forbidden Error] authtoken either doesn't exist or is timed out"

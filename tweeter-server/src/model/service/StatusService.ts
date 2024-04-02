@@ -3,6 +3,8 @@ import { AuthTokenDAO } from "../dao/interface/AuthTokenDAO";
 import { StoryDAO } from "../dao/interface/StoryDAO";
 import { FeedDAO } from "../dao/interface/FeedDAO";
 import { DAOFactory } from "../dao/interface/DAOFactory";
+import { DataPage } from "../entity/DataPage";
+import { StatusEntity } from "../entity/StatusEntity";
 export class StatusService {
     private authTokenDAO: AuthTokenDAO;
     private storyDAO: StoryDAO;
@@ -26,7 +28,23 @@ export class StatusService {
         );
 
         if (authenticated) {
-            return this.feedDAO.getFeed(user, pageSize, lastItem);
+            const feedPage: DataPage<StatusEntity> = await this.feedDAO.getFeed(
+                user,
+                pageSize,
+                lastItem
+            );
+
+            const statusArr: Status[] = [];
+            feedPage.values.forEach((statusEntity) => {
+                const status: Status | null = Status.fromJson(
+                    statusEntity.statusJson
+                );
+                if (status !== null) {
+                    statusArr.push(status);
+                }
+            });
+
+            return [statusArr, feedPage.hasMorePages];
         } else {
             throw new Error(
                 "[Forbidden Error] authtoken either doesn't exist or is timed out"
@@ -46,7 +64,20 @@ export class StatusService {
         );
 
         if (authenticated) {
-            return this.storyDAO.getStory(user, pageSize, lastItem);
+            const storyPage: DataPage<StatusEntity> =
+                await this.storyDAO.getStory(user, pageSize, lastItem);
+
+            const statusArr: Status[] = [];
+            storyPage.values.forEach((statusEntity) => {
+                const status: Status | null = Status.fromJson(
+                    statusEntity.statusJson
+                );
+                if (status !== null) {
+                    statusArr.push(status);
+                }
+            });
+
+            return [statusArr, storyPage.hasMorePages];
         } else {
             throw new Error(
                 "[Forbidden Error] authtoken either doesn't exist or is timed out"
@@ -63,7 +94,19 @@ export class StatusService {
         );
 
         if (authenticated) {
-            await this.storyDAO.recordStory(newStatus);
+            //getting the user's handle
+            const userHandle = await this.authTokenDAO.getAuthTokenHandle(
+                authToken.token
+            );
+            await this.storyDAO.recordStory(
+                new StatusEntity(
+                    userHandle,
+                    authToken.timestamp,
+                    newStatus.toJson()
+                )
+            );
+
+            //TODO: going to need to make a call to push this status to everyone following this user
         } else {
             throw new Error(
                 "[Forbidden Error] authtoken either doesn't exist or is timed out"
