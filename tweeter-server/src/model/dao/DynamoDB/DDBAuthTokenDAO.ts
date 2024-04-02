@@ -9,14 +9,14 @@ export class DDBAuthTokenDAO
 {
     readonly token = "token";
     readonly timestamp = "timestamp";
-    readonly userHandle = "userHandle";
+    readonly user_handle = "user_handle";
     readonly expirationTime = 10;
 
     constructor() {
         super("authokens");
     }
 
-    generateItem(authtoken: AuthTokenEntity) {
+    generateGetItem(authtoken: AuthTokenEntity) {
         return {
             [this.token]: authtoken.token,
         };
@@ -26,7 +26,7 @@ export class DDBAuthTokenDAO
         return new AuthTokenEntity(
             output.Item![this.token],
             output.Item![this.timestamp],
-            output.Item![this.userHandle]
+            output.Item![this.user_handle]
         );
     }
 
@@ -34,6 +34,7 @@ export class DDBAuthTokenDAO
         return {
             [this.token]: entity.token,
             [this.timestamp]: entity.timestamp,
+            [this.user_handle]: entity.userHandle,
         };
     }
 
@@ -41,7 +42,7 @@ export class DDBAuthTokenDAO
         return "set timestamp = :value1";
     }
 
-    getExpressionAttributeValues(entity: AuthTokenEntity) {
+    getUpdateExpressionAttributeValues(entity: AuthTokenEntity) {
         return {
             ":value1": entity.timestamp,
         };

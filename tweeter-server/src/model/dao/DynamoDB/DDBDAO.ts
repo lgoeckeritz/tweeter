@@ -47,10 +47,10 @@ export abstract class DDBDAO<T extends Entity> {
     async updateItem(entity: T): Promise<void> {
         const params = {
             TableName: this.tableName,
-            Key: this.generateItem(entity),
+            Key: this.generateGetItem(entity),
             UpdateExpression: this.getUpdateExpression(entity),
             ExpressionAttributeValues:
-                this.getExpressionAttributeValues(entity),
+                this.getUpdateExpressionAttributeValues(entity),
         };
         await this.client.send(new UpdateCommand(params));
     }
@@ -58,7 +58,7 @@ export abstract class DDBDAO<T extends Entity> {
     async getItem(entity: T): Promise<T | undefined> {
         const params = {
             TableName: this.tableName,
-            Key: this.generateItem(entity),
+            Key: this.generateGetItem(entity),
         };
         const output = await this.client.send(new GetCommand(params));
         return output.Item == undefined ? undefined : this.newEntity(output);
@@ -69,16 +69,27 @@ export abstract class DDBDAO<T extends Entity> {
     async deleteItem(entity: T): Promise<void> {
         const params = {
             TableName: this.tableName,
-            Key: this.generateItem(entity),
+            Key: this.generateGetItem(entity),
         };
         await this.client.send(new DeleteCommand(params));
     }
 
-    abstract generateItem(entity: T): any;
+    /**
+     * This should take the shape of what you're searching for in the table
+     * It should include the partition key and the sort key if applicable
+     * @param entity any entity that extends the class Entity
+     */
+    abstract generateGetItem(entity: T): any;
 
-    abstract generatePutItem(entity: T): any; // maybe Record<string, string> ?
+    /**
+     * This should take the shape of an entire row being put into
+     * the table. Ideally it will have the same number of elements
+     * as the entity.
+     * @param entity any entity that extends the class Entity
+     */
+    abstract generatePutItem(entity: T): any;
 
     abstract getUpdateExpression(entity: T): string;
 
-    abstract getExpressionAttributeValues(entity: T): any;
+    abstract getUpdateExpressionAttributeValues(entity: T): any;
 }
