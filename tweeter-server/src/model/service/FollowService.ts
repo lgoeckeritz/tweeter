@@ -155,6 +155,7 @@ export class FollowService {
     }
 
     //TODO: the handler all the way down to UserInfo.tsx needs to be changed to send up the user too
+    //TODO: look into just storing the user's handle with an authtoken so a user doesn't have to be passed up
     public async follow(
         authToken: AuthToken,
         user: User,

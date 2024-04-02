@@ -1,6 +1,7 @@
 import { DataPage } from "../../entity/DataPage";
 import { Follow } from "../../entity/Follow";
 
+//TODO: look into cutting out the names from Follow
 export interface FollowsDAO {
     getPageOfFollowers(
         followeeHandle: string,
