@@ -4,7 +4,6 @@ import { StatusEntity } from "../../entity/StatusEntity";
 import { FeedDAO } from "../interface/FeedDAO";
 import { DDBDAO } from "./DDBDAO";
 import { GetCommandOutput, QueryCommand } from "@aws-sdk/lib-dynamodb";
-import { FollowEntity } from "../../entity/FollowEntity";
 
 export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
     readonly owner_handle = "owner_handle";
