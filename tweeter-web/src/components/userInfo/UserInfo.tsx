@@ -44,6 +44,7 @@ const UserInfo = () => {
         setDisplayedUser(currentUser!);
     };
 
+    //TODO: current user needs to be passed as well
     const followDisplayedUser = async (
         event: React.MouseEvent
     ): Promise<void> => {
@@ -52,6 +53,7 @@ const UserInfo = () => {
         presenter.followDisplayedUser(displayedUser!, authToken!);
     };
 
+    //TODO: current user needs to be passed as well
     const unfollowDisplayedUser = async (
         event: React.MouseEvent
     ): Promise<void> => {

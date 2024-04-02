@@ -84,6 +84,7 @@ export class FollowService {
         return response.count;
     }
 
+    //TODO: current user needs to be passed to the service as well
     public async follow(
         authToken: AuthToken,
         userToFollow: User
@@ -106,6 +107,7 @@ export class FollowService {
         return [followersCount, followeesCount];
     }
 
+    //TODO: current user needs to be passed to the service as well
     public async unfollow(
         authToken: AuthToken,
         userToUnfollow: User

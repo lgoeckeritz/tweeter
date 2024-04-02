@@ -8,7 +8,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { Entity } from "../entity/Entity";
-import { DAO } from "./DAO";
+import { DAO } from "./interface/DAO";
 
 export abstract class DDBDAO<T extends Entity> implements DAO<T> {
     readonly tableName: string;

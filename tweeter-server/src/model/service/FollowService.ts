@@ -1,14 +1,55 @@
-import { AuthToken, User, FakeData } from "tweeter-shared";
+import { AuthToken, User } from "tweeter-shared";
+import { AuthTokenDAO } from "../dao/interface/AuthTokenDAO";
+import { DAOFactory } from "../dao/interface/DAOFactory";
+import { FollowsDAO } from "../dao/interface/FollowsDAO";
+import { DataPage } from "../entity/DataPage";
+import { Follow } from "../entity/Follow";
+import { UsersDAO } from "../dao/interface/UsersDAO";
 
 export class FollowService {
+    private authTokenDAO: AuthTokenDAO;
+    private followsDAO: FollowsDAO;
+    private usersDAO: UsersDAO;
+
+    constructor(daoFactory: DAOFactory) {
+        this.authTokenDAO = daoFactory.getAuthTokensDAO();
+        this.followsDAO = daoFactory.getFollowsDAO();
+        this.usersDAO = daoFactory.getUsersDAO();
+    }
+
     public async loadMoreFollowers(
         authToken: AuthToken,
         user: User,
         pageSize: number,
         lastItem: User | null
     ): Promise<[User[], boolean]> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
+        const authenticated: boolean = await this.authTokenDAO.authenticate(
+            authToken
+        );
+
+        if (authenticated) {
+            const pageOfFollowers: DataPage<Follow> =
+                await this.followsDAO.getPageOfFollowers(
+                    user.alias,
+                    pageSize,
+                    lastItem?.alias
+                );
+            // converting to array of user's followers
+            const followers: User[] = [];
+            for (let i = 0; i < pageOfFollowers.values.length; i++) {
+                const followerHandle = pageOfFollowers.values[i].followerHandle;
+                const follower = await this.usersDAO.getUser(followerHandle);
+                if (follower !== null) {
+                    followers.push(follower);
+                }
+            }
+
+            return [followers, pageOfFollowers.hasMorePages];
+        } else {
+            throw new Error(
+                "[Forbidden Error] authtoken either doesn't exist or is timed out"
+            );
+        }
     }
 
     public async loadMoreFollowees(
@@ -17,8 +58,33 @@ export class FollowService {
         pageSize: number,
         lastItem: User | null
     ): Promise<[User[], boolean]> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
+        const authenticated: boolean = await this.authTokenDAO.authenticate(
+            authToken
+        );
+
+        if (authenticated) {
+            const pageOfFollowees: DataPage<Follow> =
+                await this.followsDAO.getPageOfFollowees(
+                    user.alias,
+                    pageSize,
+                    lastItem?.alias
+                );
+            // converting to array of user's followees
+            const followees: User[] = [];
+            for (let i = 0; i < pageOfFollowees.values.length; i++) {
+                const followeeHandle = pageOfFollowees.values[i].followeeHandle;
+                const followee = await this.usersDAO.getUser(followeeHandle);
+                if (followee !== null) {
+                    followees.push(followee);
+                }
+            }
+
+            return [followees, pageOfFollowees.hasMorePages];
+        } else {
+            throw new Error(
+                "[Forbidden Error] authtoken either doesn't exist or is timed out"
+            );
+        }
     }
 
     public async getIsFollowerStatus(
@@ -26,61 +92,137 @@ export class FollowService {
         user: User,
         selectedUser: User
     ): Promise<boolean> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.isFollower();
+        const authenticated: boolean = await this.authTokenDAO.authenticate(
+            authToken
+        );
+
+        if (authenticated) {
+            //may have to be updated to first and last names?
+            const follow = new Follow(
+                user.alias,
+                user.firstName,
+                selectedUser.alias,
+                selectedUser.firstName
+            );
+            const result: Follow | undefined = await this.followsDAO.getFollow(
+                follow
+            );
+
+            if (result !== undefined) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            throw new Error(
+                "[Forbidden Error] authtoken either doesn't exist or is timed out"
+            );
+        }
     }
 
     public async getFolloweesCount(
         authToken: AuthToken,
         user: User
     ): Promise<number> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getFolloweesCount(user);
+        const authenticated: boolean = await this.authTokenDAO.authenticate(
+            authToken
+        );
+
+        if (authenticated) {
+            return this.followsDAO.getFolloweesCount(user.alias);
+        } else {
+            throw new Error(
+                "[Forbidden Error] authtoken either doesn't exist or is timed out"
+            );
+        }
     }
 
     public async getFollowersCount(
         authToken: AuthToken,
         user: User
     ): Promise<number> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getFollowersCount(user);
+        const authenticated: boolean = await this.authTokenDAO.authenticate(
+            authToken
+        );
+
+        if (authenticated) {
+            return this.followsDAO.getFollowersCount(user.alias);
+        } else {
+            throw new Error(
+                "[Forbidden Error] authtoken either doesn't exist or is timed out"
+            );
+        }
     }
 
-    /**
-     * For now, these calls don't do anything
-     * eventually they will handle the following/unfollowing of
-     * a user
-     */
+    //TODO: the handler all the way down to UserInfo.tsx needs to be changed to send up the user too
+    public async follow(
+        authToken: AuthToken,
+        user: User,
+        userToFollow: User
+    ): Promise<[followersCount: number, followeesCount: number]> {
+        const authenticated: boolean = await this.authTokenDAO.authenticate(
+            authToken
+        );
 
-    // public async follow(
-    //     authToken: AuthToken,
-    //     userToFollow: User
-    // ): Promise<[followersCount: number, followeesCount: number]> {
-    //     let followersCount = await this.getFollowersCount(
-    //         authToken,
-    //         userToFollow
-    //     );
-    //     let followeesCount = await this.getFolloweesCount(
-    //         authToken,
-    //         userToFollow
-    //     );
+        if (authenticated) {
+            await this.followsDAO.recordFollow(
+                new Follow(
+                    user.alias,
+                    user.firstName,
+                    userToFollow.alias,
+                    userToFollow.firstName
+                )
+            );
+            let followersCount = await this.getFollowersCount(
+                authToken,
+                userToFollow
+            );
+            let followeesCount = await this.getFolloweesCount(
+                authToken,
+                userToFollow
+            );
 
-    //     return [followersCount, followeesCount];
-    // }
+            return [followersCount, followeesCount];
+        } else {
+            throw new Error(
+                "[Forbidden Error] authtoken either doesn't exist or is timed out"
+            );
+        }
+    }
 
-    // public async unfollow(
-    //     authToken: AuthToken,
-    //     userToUnfollow: User
-    // ): Promise<[followersCount: number, followeesCount: number]> {
-    //     let followersCount = await this.getFollowersCount(
-    //         authToken,
-    //         userToUnfollow
-    //     );
-    //     let followeesCount = await this.getFolloweesCount(
-    //         authToken,
-    //         userToUnfollow
-    //     );
+    //TODO: the handler all the way down to UserInfo.tsx needs to be changed to send up the user too
+    public async unfollow(
+        authToken: AuthToken,
+        user: User,
+        userToUnfollow: User
+    ): Promise<[followersCount: number, followeesCount: number]> {
+        const authenticated: boolean = await this.authTokenDAO.authenticate(
+            authToken
+        );
 
-    //     return [followersCount, followeesCount];
-    // }
+        if (authenticated) {
+            await this.followsDAO.deleteFollow(
+                new Follow(
+                    user.alias,
+                    user.firstName,
+                    userToUnfollow.alias,
+                    userToUnfollow.firstName
+                )
+            );
+            let followersCount = await this.getFollowersCount(
+                authToken,
+                userToUnfollow
+            );
+            let followeesCount = await this.getFolloweesCount(
+                authToken,
+                userToUnfollow
+            );
+
+            return [followersCount, followeesCount];
+        } else {
+            throw new Error(
+                "[Forbidden Error] authtoken either doesn't exist or is timed out"
+            );
+        }
+    }
 }

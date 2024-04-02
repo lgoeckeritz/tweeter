@@ -54,6 +54,7 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
         }, "get followers count");
     }
 
+    //TODO: current user needs to be passed to the service as well
     public async followDisplayedUser(
         displayedUser: User,
         authToken: AuthToken
@@ -77,6 +78,7 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
         }, "follow user");
     }
 
+    //TODO: current user needs to be passed to the service as well
     public async unfollowDisplayedUser(
         displayedUser: User,
         authToken: AuthToken

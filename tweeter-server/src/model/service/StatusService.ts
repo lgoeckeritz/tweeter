@@ -1,14 +1,37 @@
 import { AuthToken, User, Status, FakeData } from "tweeter-shared";
-
+import { AuthTokenDAO } from "../dao/interface/AuthTokenDAO";
+import { StoryDAO } from "../dao/interface/StoryDAO";
+import { FeedDAO } from "../dao/interface/FeedDAO";
+import { DAOFactory } from "../dao/interface/DAOFactory";
 export class StatusService {
+    private authTokenDAO: AuthTokenDAO;
+    private storyDAO: StoryDAO;
+    private feedDAO: FeedDAO;
+
+    constructor(daoFactory: DAOFactory) {
+        this.authTokenDAO = daoFactory.getAuthTokensDAO();
+        this.storyDAO = daoFactory.getStoryDAO();
+        this.feedDAO = daoFactory.getFeedDAO();
+    }
+
     public async loadMoreFeedItems(
         authToken: AuthToken,
         user: User,
         pageSize: number,
         lastItem: Status | null
     ): Promise<[Status[], boolean]> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+        // return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+        const authenticated: boolean = await this.authTokenDAO.authenticate(
+            authToken
+        );
+
+        if (authenticated) {
+            return this.feedDAO.getFeed(user, pageSize, lastItem);
+        } else {
+            throw new Error(
+                "[Forbidden Error] authtoken either doesn't exist or is timed out"
+            );
+        }
     }
 
     public async loadMoreStoryItems(
@@ -17,17 +40,34 @@ export class StatusService {
         pageSize: number,
         lastItem: Status | null
     ): Promise<[Status[], boolean]> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+        // return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+        const authenticated: boolean = await this.authTokenDAO.authenticate(
+            authToken
+        );
+
+        if (authenticated) {
+            return this.storyDAO.getStory(user, pageSize, lastItem);
+        } else {
+            throw new Error(
+                "[Forbidden Error] authtoken either doesn't exist or is timed out"
+            );
+        }
     }
 
-    // public async postStatus(
-    //     authToken: AuthToken,
-    //     newStatus: Status
-    // ): Promise<void> {
-    //     // Pause so we can see the logging out message. Remove when connected to the server
-    //     await new Promise((f) => setTimeout(f, 2000));
+    public async postStatus(
+        authToken: AuthToken,
+        newStatus: Status
+    ): Promise<void> {
+        const authenticated: boolean = await this.authTokenDAO.authenticate(
+            authToken
+        );
 
-    //     // TODO: Call the server to post the status
-    // }
+        if (authenticated) {
+            await this.storyDAO.recordStory(newStatus);
+        } else {
+            throw new Error(
+                "[Forbidden Error] authtoken either doesn't exist or is timed out"
+            );
+        }
+    }
 }

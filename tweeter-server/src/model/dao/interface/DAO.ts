@@ -1,4 +1,4 @@
-import { Entity } from "../entity/Entity";
+import { Entity } from "../../entity/Entity";
 
 export interface DAO<T extends Entity> {
     recordItem(entity: T): Promise<void>;
