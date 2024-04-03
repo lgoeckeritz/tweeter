@@ -29,7 +29,11 @@ export class StatusService {
         pageSize: number,
         lastItem: Status | null
     ): Promise<[Status[], boolean]> {
-        // return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+        //checking to make sure request is good
+        if (user === null || authToken === null || pageSize === null) {
+            throw new Error("[Bad Request] part or all of the request is null");
+        }
+
         const authenticated: boolean = await this.authTokenDAO.authenticate(
             authToken.token
         );
@@ -65,7 +69,11 @@ export class StatusService {
         pageSize: number,
         lastItem: Status | null
     ): Promise<[Status[], boolean]> {
-        // return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+        //checking to make sure request is good
+        if (user === null || authToken === null || pageSize === null) {
+            throw new Error("[Bad Request] part or all of the request is null");
+        }
+
         const authenticated: boolean = await this.authTokenDAO.authenticate(
             authToken.token
         );
@@ -96,6 +104,11 @@ export class StatusService {
         authToken: AuthToken,
         newStatus: Status
     ): Promise<void> {
+        //checking to make sure request is good
+        if (authToken === null || newStatus === null) {
+            throw new Error("[Bad Request] part or all of the request is null");
+        }
+
         const authenticated: boolean = await this.authTokenDAO.authenticate(
             authToken.token
         );

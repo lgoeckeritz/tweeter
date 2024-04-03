@@ -1,25 +1,16 @@
 import { FollowInfoRequest, GetFollowCountResponse } from "tweeter-shared";
 import { FollowService } from "../model/service/FollowService";
+import { DDBDAOFactory } from "../model/dao/DynamoDB/DDBDAOFactory";
 
 export const handler = async (
     event: FollowInfoRequest
 ): Promise<GetFollowCountResponse> => {
-    if (event.user == null) {
-        throw new Error("[Bad Request] requested user is null");
-    }
-
-    if (event.authToken == null) {
-        throw new Error("[Bad Request] requested authToken is null");
-    }
-
     let response = new GetFollowCountResponse(
         true,
-        await new FollowService().getFollowersCount(event.authToken, event.user)
+        await new FollowService(new DDBDAOFactory()).getFollowersCount(
+            event.authToken,
+            event.user
+        )
     );
-
-    if (response.count == null) {
-        throw new Error("[Server Error] could not complete request");
-    }
-
     return response;
 };

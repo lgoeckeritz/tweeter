@@ -24,6 +24,11 @@ export class FollowService {
         pageSize: number,
         lastItem: User | null
     ): Promise<[User[], boolean]> {
+        //checking to make sure request is good
+        if (user === null || authToken === null || pageSize === null) {
+            throw new Error("[Bad Request] part or all of the request is null");
+        }
+
         const authenticated: boolean = await this.authTokenDAO.authenticate(
             authToken.token
         );
@@ -65,6 +70,11 @@ export class FollowService {
         pageSize: number,
         lastItem: User | null
     ): Promise<[User[], boolean]> {
+        //checking to make sure request is good
+        if (user === null || authToken === null || pageSize === null) {
+            throw new Error("[Bad Request] part or all of the request is null");
+        }
+
         const authenticated: boolean = await this.authTokenDAO.authenticate(
             authToken.token
         );
@@ -106,6 +116,11 @@ export class FollowService {
         user: User,
         selectedUser: User
     ): Promise<boolean> {
+        //checking to make sure request is good
+        if (user === null || authToken === null || selectedUser === null) {
+            throw new Error("[Bad Request] part or all of the request is null");
+        }
+
         const authenticated: boolean = await this.authTokenDAO.authenticate(
             authToken.token
         );
@@ -137,6 +152,11 @@ export class FollowService {
         authToken: AuthToken,
         user: User
     ): Promise<number> {
+        //checking to make sure request is good
+        if (user === null || authToken === null) {
+            throw new Error("[Bad Request] part or all of the request is null");
+        }
+
         const authenticated: boolean = await this.authTokenDAO.authenticate(
             authToken.token
         );
@@ -160,6 +180,11 @@ export class FollowService {
         authToken: AuthToken,
         user: User
     ): Promise<number> {
+        //checking to make sure request is good
+        if (user === null || authToken === null) {
+            throw new Error("[Bad Request] part or all of the request is null");
+        }
+
         const authenticated: boolean = await this.authTokenDAO.authenticate(
             authToken.token
         );
@@ -179,14 +204,15 @@ export class FollowService {
         }
     }
 
-    //TODO: the handler all the way down to UserInfo.tsx needs to be changed to send up the user too
-    //TODO: ignore that last comment and go remove the other comments leading up to it
-    //TODO: look into just storing the user's handle with an authtoken so a user doesn't have to be passed up
-    //TODO: also store a number of followers and followees in the user table for a quick way to get number of followers
     public async follow(
         authToken: AuthToken,
         userToFollow: User
     ): Promise<[followersCount: number, followeesCount: number]> {
+        //checking to make sure request is good
+        if (userToFollow === null || authToken === null) {
+            throw new Error("[Bad Request] part or all of the request is null");
+        }
+
         const authenticated: boolean = await this.authTokenDAO.authenticate(
             authToken.token
         );
@@ -221,6 +247,11 @@ export class FollowService {
         authToken: AuthToken,
         userToUnfollow: User
     ): Promise<[followersCount: number, followeesCount: number]> {
+        //checking to make sure request is good
+        if (userToUnfollow === null || authToken === null) {
+            throw new Error("[Bad Request] part or all of the request is null");
+        }
+
         const authenticated: boolean = await this.authTokenDAO.authenticate(
             authToken.token
         );
