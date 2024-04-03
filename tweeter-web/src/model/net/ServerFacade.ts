@@ -2,9 +2,6 @@ import {
     AuthenticateResponse,
     LoginRequest,
     RegisterRequest,
-} from "tweeter-shared";
-import { ClientCommunicator } from "./ClientCommunicator";
-import {
     FollowInfoRequest,
     GetIsFollowerStatusRequest,
     GetUserRequest,
@@ -12,15 +9,15 @@ import {
     LoadMoreUserItemsRequest,
     LogoutRequest,
     PostStatusRequest,
-} from "tweeter-shared/dist/model/net/Request";
-import {
     GetFollowCountResponse,
+    GetFollowInfoResponse,
     GetIsFollowerStatusResponse,
     GetUserResponse,
     LoadMoreStatusItemsResponse,
     LoadMoreUserItemsResponse,
     TweeterResponse,
-} from "tweeter-shared/dist/model/net/Response";
+} from "tweeter-shared";
+import { ClientCommunicator } from "./ClientCommunicator";
 
 export class ServerFacade {
     private SERVER_URL =
@@ -172,23 +169,23 @@ export class ServerFacade {
         return GetFollowCountResponse.fromJson(response);
     }
 
-    async follow(request: FollowInfoRequest): Promise<TweeterResponse> {
+    async follow(request: FollowInfoRequest): Promise<GetFollowInfoResponse> {
         const endpoint = "/service/follow";
         const response: JSON =
             await this.clientCommunicator.doPost<FollowInfoRequest>(
                 request,
                 endpoint
             );
-        return TweeterResponse.fromJson(response);
+        return GetFollowInfoResponse.fromJson(response);
     }
 
-    async unfollow(request: FollowInfoRequest): Promise<TweeterResponse> {
+    async unfollow(request: FollowInfoRequest): Promise<GetFollowInfoResponse> {
         const endpoint = "/service/unfollow";
         const response: JSON =
             await this.clientCommunicator.doPost<FollowInfoRequest>(
                 request,
                 endpoint
             );
-        return TweeterResponse.fromJson(response);
+        return GetFollowInfoResponse.fromJson(response);
     }
 }

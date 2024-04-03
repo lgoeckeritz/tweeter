@@ -5,13 +5,11 @@ import {
     AuthenticateResponse,
     RegisterRequest,
     GetUserResponse,
+    GetUserRequest,
+    LogoutRequest,
 } from "tweeter-shared";
 import { Buffer } from "buffer";
 import { ServerFacade } from "../net/ServerFacade";
-import {
-    GetUserRequest,
-    LogoutRequest,
-} from "tweeter-shared/dist/model/net/Request";
 
 export class UserService {
     private serverFacade = new ServerFacade();

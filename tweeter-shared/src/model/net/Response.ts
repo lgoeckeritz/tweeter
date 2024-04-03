@@ -2,11 +2,6 @@ import { AuthToken } from "../domain/AuthToken";
 import { Status } from "../domain/Status";
 import { User } from "../domain/User";
 
-//consider changing this to an interface like this: (check the slides for what it should actually look like)
-// export interface TweeterResponse {
-//     readonly success: boolean;
-//     readonly message: string | null;
-// }
 export class TweeterResponse {
     private _success: boolean;
     private _message: string | null;
@@ -363,6 +358,69 @@ export class GetFollowCountResponse extends TweeterResponse {
         return new GetFollowCountResponse(
             jsonObject._success,
             deserializedCount,
+            jsonObject._message
+        );
+    }
+}
+
+export class GetFollowInfoResponse extends TweeterResponse {
+    private _numFollowers: number;
+    private _numFollowees: number;
+
+    constructor(
+        success: boolean,
+        numFollowers: number,
+        numFollowees: number,
+        message: string | null = null
+    ) {
+        super(success, message);
+        this._numFollowers = numFollowers;
+        this._numFollowees = numFollowees;
+    }
+
+    get numFollowers(): number {
+        return this._numFollowers;
+    }
+
+    get numFollowees(): number {
+        return this._numFollowees;
+    }
+
+    static fromJson(json: JSON): GetFollowInfoResponse {
+        interface GetFollowInfoResponseJson extends ResponseJson {
+            _numFollowers: JSON;
+            _numFollowees: JSON;
+        }
+
+        const jsonObject: GetFollowInfoResponseJson =
+            json as unknown as GetFollowInfoResponseJson;
+
+        const deserializedNumFollowers: number | null = JSON.parse(
+            JSON.stringify(jsonObject._numFollowers)
+        );
+
+        const deserializedNumFollowees: number | null = JSON.parse(
+            JSON.stringify(jsonObject._numFollowers)
+        );
+
+        if (deserializedNumFollowers === null) {
+            throw new Error(
+                "GetFollowInfoResponse, could not deserialize user with json:\n" +
+                    JSON.stringify(jsonObject._numFollowers)
+            );
+        }
+
+        if (deserializedNumFollowees === null) {
+            throw new Error(
+                "GetFollowInfoResponse, could not deserialize user with json:\n" +
+                    JSON.stringify(jsonObject._numFollowees)
+            );
+        }
+
+        return new GetFollowInfoResponse(
+            jsonObject._success,
+            deserializedNumFollowers,
+            deserializedNumFollowees,
             jsonObject._message
         );
     }

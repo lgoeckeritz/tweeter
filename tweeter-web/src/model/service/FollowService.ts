@@ -7,9 +7,9 @@ import {
     GetIsFollowerStatusRequest,
     GetFollowCountResponse,
     FollowInfoRequest,
+    GetFollowInfoResponse,
 } from "tweeter-shared";
 import { ServerFacade } from "../net/ServerFacade";
-import { TweeterResponse } from "tweeter-shared/dist/model/net/Response";
 
 export class FollowService {
     private serverFacade: ServerFacade = new ServerFacade();
@@ -84,49 +84,23 @@ export class FollowService {
         return response.count;
     }
 
-    //TODO: current user needs to be passed to the service as well
     public async follow(
         authToken: AuthToken,
         userToFollow: User
     ): Promise<[followersCount: number, followeesCount: number]> {
-        let response: TweeterResponse = await this.serverFacade.follow(
+        let response: GetFollowInfoResponse = await this.serverFacade.follow(
             new FollowInfoRequest(authToken, userToFollow)
         );
-
-        // TODO: maybe check here if the follow request was a success?
-
-        let followersCount = await this.getFollowersCount(
-            authToken,
-            userToFollow
-        );
-        let followeesCount = await this.getFolloweesCount(
-            authToken,
-            userToFollow
-        );
-
-        return [followersCount, followeesCount];
+        return [response.numFollowers, response.numFollowees];
     }
 
-    //TODO: current user needs to be passed to the service as well
     public async unfollow(
         authToken: AuthToken,
         userToUnfollow: User
     ): Promise<[followersCount: number, followeesCount: number]> {
-        let response: TweeterResponse = await this.serverFacade.unfollow(
+        let response: GetFollowInfoResponse = await this.serverFacade.unfollow(
             new FollowInfoRequest(authToken, userToUnfollow)
         );
-
-        // TODO: maybe check here if the follow request was a success?
-
-        let followersCount = await this.getFollowersCount(
-            authToken,
-            userToUnfollow
-        );
-        let followeesCount = await this.getFolloweesCount(
-            authToken,
-            userToUnfollow
-        );
-
-        return [followersCount, followeesCount];
+        return [response.numFollowers, response.numFollowees];
     }
 }

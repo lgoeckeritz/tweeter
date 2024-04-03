@@ -21,6 +21,7 @@ export {
     LoadMoreUserItemsRequest,
     GetIsFollowerStatusRequest,
     FollowInfoRequest,
+    LogoutRequest,
 } from "./model/net/Request";
 export {
     AuthenticateResponse,
@@ -29,4 +30,6 @@ export {
     LoadMoreUserItemsResponse,
     GetIsFollowerStatusResponse,
     GetFollowCountResponse,
+    GetFollowInfoResponse,
+    TweeterResponse,
 } from "./model/net/Response";
