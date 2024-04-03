@@ -2,6 +2,7 @@ import { GetCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { UserEntity } from "../../entity/UserEntity";
 import { UsersDAO } from "../interface/UsersDAO";
 import { DDBDAO } from "./DDBDAO";
+import bcrypt from "bcrypt";
 
 export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
     readonly first_name = "first_name";
@@ -11,6 +12,8 @@ export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
     readonly password = "password";
     readonly num_followers = "num_followers";
     readonly num_followees = "num_followees";
+
+    private saltRounds = 8;
 
     constructor() {
         super("users");
@@ -57,19 +60,23 @@ export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
         };
     }
 
+    //TODO: figure out if the comparing of hashes should be in here or not
     async loginUser(
         alias: string,
         password: string
     ): Promise<UserEntity | undefined> {
         //getting user associated with the alias
-        const userEntity: UserEntity | undefined = await this.getUser(alias);
-        if (userEntity !== undefined) {
-            //checking to make sure the provided password is the same the one stored
-            if (password === userEntity.password) {
-                return userEntity;
-            } else {
-                return undefined;
-            }
+        const userEntity = await this.getUser(alias);
+        if (userEntity === undefined) {
+            return undefined;
+        }
+        //comparing the passwords to make sure they match
+        const matches: boolean = await bcrypt.compare(
+            password,
+            userEntity.password
+        );
+        if (matches) {
+            return userEntity;
         } else {
             return undefined;
         }
@@ -82,12 +89,25 @@ export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
         password: string,
         imageUrl: string
     ): Promise<UserEntity | undefined> {
+        //hashing the password
+        let hashPassword = "";
+        bcrypt.hash(
+            password,
+            this.saltRounds,
+            (error: Error | undefined, hash: string) => {
+                if (error) {
+                    return undefined;
+                } else {
+                    hashPassword = hash;
+                }
+            }
+        );
         const newUserEntity = new UserEntity(
             firstName,
             lastName,
             alias,
             imageUrl,
-            password,
+            hashPassword,
             0,
             0
         );
