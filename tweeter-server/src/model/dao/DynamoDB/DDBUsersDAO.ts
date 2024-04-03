@@ -2,7 +2,6 @@ import { GetCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { UserEntity } from "../../entity/UserEntity";
 import { UsersDAO } from "../interface/UsersDAO";
 import { DDBDAO } from "./DDBDAO";
-
 export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
     readonly first_name = "first_name";
     readonly last_name = "last_name";
@@ -11,8 +10,6 @@ export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
     readonly password = "password";
     readonly num_followers = "num_followers";
     readonly num_followees = "num_followees";
-
-    private saltRounds = 8;
 
     constructor() {
         super("users");
@@ -69,18 +66,13 @@ export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
             return undefined;
         }
         //comparing the passwords to make sure they match
-        const bcrypt = require("bcryptjs");
-        await bcrypt.compare(
-            password,
-            userEntity.password,
-            function (err: Error, res: boolean) {
-                if (res) {
-                    return userEntity;
-                } else {
-                    return undefined;
-                }
-            }
-        );
+        const CryptoJS = require("crypto-js");
+        let hashPassword = CryptoJS.MD5(password).toString(CryptoJS.enc.Base64);
+        if (hashPassword === userEntity.password) {
+            return userEntity;
+        } else {
+            return undefined;
+        }
     }
 
     async registerUser(
@@ -91,19 +83,8 @@ export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
         imageUrl: string
     ): Promise<UserEntity | undefined> {
         //hashing the password
-        let hashPassword = "";
-        const bcrypt = require("bcryptjs");
-        bcrypt.hash(
-            password,
-            this.saltRounds,
-            function (err: Error, hash: any) {
-                if (err) {
-                    return undefined;
-                } else {
-                    hashPassword = hash;
-                }
-            }
-        );
+        const CryptoJS = require("crypto-js");
+        let hashPassword = CryptoJS.MD5(password).toString(CryptoJS.enc.Base64);
 
         const newUserEntity = new UserEntity(
             firstName,

@@ -64,7 +64,7 @@ export class UserService {
         if (userEntity !== undefined) {
             //generate and store authToken
             const authToken: AuthToken = AuthToken.Generate();
-            this.authTokenDAO.recordAuthToken(
+            await this.authTokenDAO.recordAuthToken(
                 new AuthTokenEntity(authToken.token, authToken.timestamp, alias)
             );
 

@@ -235,6 +235,8 @@ export class FollowService {
                     userToFollow.firstName
                 )
             );
+            //need to increment followers and following on this user and the
+            //user that has just been followed
 
             return [userEntity.numFollowers, userEntity.numFollowees];
         } else {
@@ -276,6 +278,9 @@ export class FollowService {
                     userToUnfollow.firstName
                 )
             );
+
+            //need to decrement followers and following on this user and the
+            //user that has just been unfollowed
             return [userEntity.numFollowers, userEntity.numFollowees];
         } else {
             throw new Error(

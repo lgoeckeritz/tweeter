@@ -49,7 +49,7 @@ class UserService {
             if (userEntity !== undefined) {
                 //generate and store authToken
                 const authToken = tweeter_shared_1.AuthToken.Generate();
-                this.authTokenDAO.recordAuthToken(new AuthTokenEntity_1.AuthTokenEntity(authToken.token, authToken.timestamp, alias));
+                yield this.authTokenDAO.recordAuthToken(new AuthTokenEntity_1.AuthTokenEntity(authToken.token, authToken.timestamp, alias));
                 //generating user from userEntity
                 const user = new tweeter_shared_1.User(userEntity.firstName, userEntity.lastName, userEntity.alias, userEntity.imageUrl);
                 return [user, authToken];

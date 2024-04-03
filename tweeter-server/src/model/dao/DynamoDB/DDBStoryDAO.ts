@@ -63,7 +63,7 @@ export class DDBStoryDAO extends DDBDAO<StatusEntity> implements StoryDAO {
             TableName: this.tableName,
             Limit: pageSize,
             ExclusiveStartKey:
-                lastItem === undefined
+                lastItem === null
                     ? undefined
                     : {
                           [this.author_handle]: user.alias,

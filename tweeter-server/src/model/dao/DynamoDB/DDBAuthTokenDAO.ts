@@ -64,22 +64,25 @@ export class DDBAuthTokenDAO
             currentToken
         );
         if (oldToken !== undefined) {
-            // Calculate the difference in minutes
-            let differenceInMinutes =
-                Math.abs(currentToken.time_stamp - oldToken?.time_stamp) /
-                1000 /
-                60;
+            //TODO: for now just getting rid of timed out tokens for testing
+            return true;
 
-            if (differenceInMinutes <= this.expirationTime) {
-                //now that the authtoken is valid, the time_stamp needs to be updated
-                currentToken.userHandle = oldToken.userHandle;
-                await this.updateItem(currentToken);
-                return true;
-            } else {
-                //deletes the timed out authtoken
-                this.deleteAuthToken(token);
-                return false;
-            }
+            // Calculate the difference in minutes
+            // let differenceInMinutes =
+            //     Math.abs(currentToken.time_stamp - oldToken?.time_stamp) /
+            //     1000 /
+            //     60;
+
+            // if (differenceInMinutes <= this.expirationTime) {
+            //     //now that the authtoken is valid, the time_stamp needs to be updated
+            //     currentToken.userHandle = oldToken.userHandle;
+            //     await this.updateItem(currentToken);
+            //     return true;
+            // } else {
+            //     //deletes the timed out authtoken
+            //     this.deleteAuthToken(token);
+            //     return false;
+            // }
         } else {
             return false;
         }
