@@ -204,6 +204,7 @@ export class FollowService {
         }
     }
 
+    //needs to update a users follow count
     public async follow(
         authToken: AuthToken,
         userToFollow: User
@@ -243,6 +244,7 @@ export class FollowService {
         }
     }
 
+    //needs to update a users follow count
     public async unfollow(
         authToken: AuthToken,
         userToUnfollow: User

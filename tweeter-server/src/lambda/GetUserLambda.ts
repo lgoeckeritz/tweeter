@@ -5,11 +5,12 @@ import { DDBDAOFactory } from "../model/dao/DynamoDB/DDBDAOFactory";
 export const handler = async (
     event: GetUserRequest
 ): Promise<GetUserResponse> => {
+    const request: GetUserRequest = GetUserRequest.fromJson(event);
     let response = new GetUserResponse(
         true,
         await new UserService(new DDBDAOFactory()).getUser(
-            event.authToken,
-            event.alias
+            request.authToken,
+            request.alias
         )
     );
     return response;

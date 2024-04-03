@@ -7,7 +7,7 @@ import { GetCommandOutput, QueryCommand } from "@aws-sdk/lib-dynamodb";
 
 export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
     readonly owner_handle = "owner_handle";
-    readonly timestamp = "timestamp";
+    readonly time_stamp = "time_stamp";
     readonly status_json = "status_json";
 
     constructor() {
@@ -17,7 +17,7 @@ export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
     newEntity(output: GetCommandOutput): StatusEntity {
         return new StatusEntity(
             output.Item![this.owner_handle],
-            output.Item![this.timestamp],
+            output.Item![this.time_stamp],
             output.Item![this.status_json]
         );
     }
@@ -25,14 +25,14 @@ export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
     generateGetItem(entity: StatusEntity) {
         return {
             [this.owner_handle]: entity.handle,
-            [this.timestamp]: entity.timestamp,
+            [this.time_stamp]: entity.time_stamp,
         };
     }
 
     generatePutItem(entity: StatusEntity) {
         return {
             [this.owner_handle]: entity.handle,
-            [this.timestamp]: entity.timestamp,
+            [this.time_stamp]: entity.time_stamp,
             [this.status_json]: entity.statusJson,
         };
     }
@@ -64,11 +64,11 @@ export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
             TableName: this.tableName,
             Limit: pageSize,
             ExclusiveStartKey:
-                lastItem === undefined
+                lastItem === null
                     ? undefined
                     : {
                           [this.owner_handle]: user.alias,
-                          [this.status_json]: lastItem!.toJson,
+                          [this.status_json]: lastItem!.toJson(),
                       },
         };
 
@@ -79,7 +79,7 @@ export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
             items.push(
                 new StatusEntity(
                     item[this.owner_handle],
-                    item[this.timestamp],
+                    item[this.time_stamp],
                     item[this.status_json]
                 )
             )

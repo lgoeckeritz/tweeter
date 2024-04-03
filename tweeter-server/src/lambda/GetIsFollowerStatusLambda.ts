@@ -8,12 +8,14 @@ import { DDBDAOFactory } from "../model/dao/DynamoDB/DDBDAOFactory";
 export const handler = async (
     event: GetIsFollowerStatusRequest
 ): Promise<GetIsFollowerStatusResponse> => {
+    const request: GetIsFollowerStatusRequest =
+        GetIsFollowerStatusRequest.fromJson(event);
     let response = new GetIsFollowerStatusResponse(
         true,
         await new FollowService(new DDBDAOFactory()).getIsFollowerStatus(
-            event.authToken,
-            event.user,
-            event.selectedUser
+            request.authToken,
+            request.user,
+            request.selectedUser
         )
     );
     return response;

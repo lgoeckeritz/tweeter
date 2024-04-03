@@ -7,7 +7,7 @@ import { GetCommandOutput, QueryCommand } from "@aws-sdk/lib-dynamodb";
 
 export class DDBStoryDAO extends DDBDAO<StatusEntity> implements StoryDAO {
     readonly author_handle = "author_handle";
-    readonly timestamp = "timestamp";
+    readonly time_stamp = "time_stamp";
     readonly status_json = "status_json";
 
     constructor() {
@@ -17,7 +17,7 @@ export class DDBStoryDAO extends DDBDAO<StatusEntity> implements StoryDAO {
     newEntity(output: GetCommandOutput): StatusEntity {
         return new StatusEntity(
             output.Item![this.author_handle],
-            output.Item![this.timestamp],
+            output.Item![this.time_stamp],
             output.Item![this.status_json]
         );
     }
@@ -25,14 +25,14 @@ export class DDBStoryDAO extends DDBDAO<StatusEntity> implements StoryDAO {
     generateGetItem(entity: StatusEntity) {
         return {
             [this.author_handle]: entity.handle,
-            [this.timestamp]: entity.timestamp,
+            [this.time_stamp]: entity.time_stamp,
         };
     }
 
     generatePutItem(entity: StatusEntity) {
         return {
             [this.author_handle]: entity.handle,
-            [this.timestamp]: entity.timestamp,
+            [this.time_stamp]: entity.time_stamp,
             [this.status_json]: entity.statusJson,
         };
     }
@@ -78,7 +78,7 @@ export class DDBStoryDAO extends DDBDAO<StatusEntity> implements StoryDAO {
             items.push(
                 new StatusEntity(
                     item[this.author_handle],
-                    item[this.timestamp],
+                    item[this.time_stamp],
                     item[this.status_json]
                 )
             )

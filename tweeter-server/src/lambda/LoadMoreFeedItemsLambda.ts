@@ -8,13 +8,15 @@ import { DDBDAOFactory } from "../model/dao/DynamoDB/DDBDAOFactory";
 export const handler = async (
     event: LoadMoreStatusItemsRequest
 ): Promise<LoadMoreStatusItemsResponse> => {
+    const request: LoadMoreStatusItemsRequest =
+        LoadMoreStatusItemsRequest.fromJson(event);
     let response = new LoadMoreStatusItemsResponse(
         true,
         ...(await new StatusService(new DDBDAOFactory()).loadMoreFeedItems(
-            event.authToken,
-            event.user,
-            event.pageSize,
-            event.lastItem
+            request.authToken,
+            request.user,
+            request.pageSize,
+            request.lastItem
         ))
     );
     return response;

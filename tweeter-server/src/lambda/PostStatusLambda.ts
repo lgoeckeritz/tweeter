@@ -6,9 +6,10 @@ import { DDBDAOFactory } from "../model/dao/DynamoDB/DDBDAOFactory";
 export const handler = async (
     event: PostStatusRequest
 ): Promise<TweeterResponse> => {
+    const request: PostStatusRequest = PostStatusRequest.fromJson(event);
     await new StatusService(new DDBDAOFactory()).postStatus(
-        event.authToken,
-        event.newStatus
+        request.authToken,
+        request.newStatus
     );
     let response = new TweeterResponse(true);
     return response;

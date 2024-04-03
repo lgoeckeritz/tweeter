@@ -8,12 +8,12 @@ export class DDBAuthTokenDAO
     implements AuthTokenDAO
 {
     readonly token = "token";
-    readonly timestamp = "timestamp";
+    readonly time_stamp = "time_stamp";
     readonly user_handle = "user_handle";
-    readonly expirationTime = 10;
+    readonly expirationTime = 1000000000; //TODO change this back to 10 after testing is finished
 
     constructor() {
-        super("authokens");
+        super("authtokens");
     }
 
     generateGetItem(authtoken: AuthTokenEntity) {
@@ -25,7 +25,7 @@ export class DDBAuthTokenDAO
     newEntity(output: GetCommandOutput): AuthTokenEntity {
         return new AuthTokenEntity(
             output.Item![this.token],
-            output.Item![this.timestamp],
+            output.Item![this.time_stamp],
             output.Item![this.user_handle]
         );
     }
@@ -33,24 +33,24 @@ export class DDBAuthTokenDAO
     generatePutItem(entity: AuthTokenEntity) {
         return {
             [this.token]: entity.token,
-            [this.timestamp]: entity.timestamp,
+            [this.time_stamp]: entity.time_stamp,
             [this.user_handle]: entity.userHandle,
         };
     }
 
     getUpdateExpression(): string {
-        return "set timestamp = :value1";
+        return "set time_stamp = :value1";
     }
 
     getUpdateExpressionAttributeValues(entity: AuthTokenEntity) {
         return {
-            ":value1": entity.timestamp,
+            ":value1": entity.time_stamp,
         };
     }
 
     /**
      * Checks to see if the authtoken provided is currently in the database
-     * and not timed out. If it is and not timed out, the timestamp is updated
+     * and not timed out. If it is and not timed out, the time_stamp is updated
      * to the current time and this returns true
      * @param token is the authToken that should be in the database
      */
@@ -66,12 +66,12 @@ export class DDBAuthTokenDAO
         if (oldToken !== undefined) {
             // Calculate the difference in minutes
             let differenceInMinutes =
-                Math.abs(currentToken.timestamp - oldToken?.timestamp) /
+                Math.abs(currentToken.time_stamp - oldToken?.time_stamp) /
                 1000 /
                 60;
 
             if (differenceInMinutes <= this.expirationTime) {
-                //now that the authtoken is valid, the timestamp needs to be updated
+                //now that the authtoken is valid, the time_stamp needs to be updated
                 currentToken.userHandle = oldToken.userHandle;
                 await this.updateItem(currentToken);
                 return true;
@@ -104,7 +104,7 @@ export class DDBAuthTokenDAO
      * @param authTokenEntity new authtoken to store in the table
      */
     async recordAuthToken(authTokenEntity: AuthTokenEntity): Promise<void> {
-        this.putItem(authTokenEntity);
+        await this.putItem(authTokenEntity);
     }
 
     /**

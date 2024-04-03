@@ -47,11 +47,15 @@ export class StatusService {
 
             const statusArr: Status[] = [];
             feedPage.values.forEach((statusEntity) => {
-                const status: Status | null = Status.fromJson(
-                    statusEntity.statusJson
-                );
-                if (status !== null) {
-                    statusArr.push(status);
+                try {
+                    const status: Status | null = Status.fromJson(
+                        statusEntity.statusJson
+                    );
+                    if (status !== null) {
+                        statusArr.push(status);
+                    }
+                } catch (error) {
+                    console.log("Found null status. Error: " + error);
                 }
             });
 

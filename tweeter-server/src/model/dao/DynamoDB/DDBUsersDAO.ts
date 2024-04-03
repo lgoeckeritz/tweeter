@@ -2,7 +2,6 @@ import { GetCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { UserEntity } from "../../entity/UserEntity";
 import { UsersDAO } from "../interface/UsersDAO";
 import { DDBDAO } from "./DDBDAO";
-import bcrypt from "bcrypt";
 
 export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
     readonly first_name = "first_name";
@@ -54,13 +53,12 @@ export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
     }
 
     getUpdateExpressionAttributeValues(entity: UserEntity) {
-        throw {
+        return {
             ":value1": entity.numFollowers,
             ":value2": entity.numFollowees,
         };
     }
 
-    //TODO: figure out if the comparing of hashes should be in here or not
     async loginUser(
         alias: string,
         password: string
@@ -71,15 +69,18 @@ export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
             return undefined;
         }
         //comparing the passwords to make sure they match
-        const matches: boolean = await bcrypt.compare(
+        const bcrypt = require("bcryptjs");
+        await bcrypt.compare(
             password,
-            userEntity.password
+            userEntity.password,
+            function (err: Error, res: boolean) {
+                if (res) {
+                    return userEntity;
+                } else {
+                    return undefined;
+                }
+            }
         );
-        if (matches) {
-            return userEntity;
-        } else {
-            return undefined;
-        }
     }
 
     async registerUser(
@@ -91,17 +92,19 @@ export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
     ): Promise<UserEntity | undefined> {
         //hashing the password
         let hashPassword = "";
+        const bcrypt = require("bcryptjs");
         bcrypt.hash(
             password,
             this.saltRounds,
-            (error: Error | undefined, hash: string) => {
-                if (error) {
+            function (err: Error, hash: any) {
+                if (err) {
                     return undefined;
                 } else {
                     hashPassword = hash;
                 }
             }
         );
+
         const newUserEntity = new UserEntity(
             firstName,
             lastName,

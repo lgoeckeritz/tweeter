@@ -2,13 +2,13 @@ import { Entity } from "./Entity";
 
 export class StatusEntity extends Entity {
     handle: string;
-    timestamp: number;
+    time_stamp: number;
     statusJson: string;
 
-    constructor(handle: string, timestamp: number, statusJson: string) {
+    constructor(handle: string, time_stamp: number, statusJson: string) {
         super();
         this.handle = handle;
-        this.timestamp = timestamp;
+        this.time_stamp = time_stamp;
         this.statusJson = statusJson;
     }
 }

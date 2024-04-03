@@ -6,7 +6,8 @@ import { DDBDAOFactory } from "../model/dao/DynamoDB/DDBDAOFactory";
 export const handler = async (
     event: LogoutRequest
 ): Promise<TweeterResponse> => {
-    await new UserService(new DDBDAOFactory()).logout(event.token);
+    const request: LogoutRequest = LogoutRequest.fromJson(event);
+    await new UserService(new DDBDAOFactory()).logout(request.token);
     let response = new TweeterResponse(true);
     return response;
 };
