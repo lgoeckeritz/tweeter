@@ -26,6 +26,7 @@ const ItemScroller = <I, S>(props: Props<I, S>) => {
     // Load initial items
     useEffect(() => {
         loadMoreItems();
+        console.log("getting called from useEffect");
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -38,7 +39,7 @@ const ItemScroller = <I, S>(props: Props<I, S>) => {
     const [presenter] = useState(props.presenterGenerator(listener));
 
     const loadMoreItems = async () => {
-        presenter.loadMoreItems(authToken!, displayedUser!);
+        await presenter.loadMoreItems(authToken!, displayedUser!);
     };
 
     return (
