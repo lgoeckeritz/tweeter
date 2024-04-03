@@ -38,7 +38,7 @@ export class DDBStoryDAO extends DDBDAO<StatusEntity> implements StoryDAO {
     }
 
     //not being used so not implimented
-    getUpdateExpression(entity: StatusEntity): string {
+    getUpdateExpression(): string {
         throw new Error("Method not implemented.");
     }
     //not being used so not implimented

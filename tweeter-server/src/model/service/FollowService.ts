@@ -38,9 +38,9 @@ export class FollowService {
             const followers: User[] = [];
             for (let i = 0; i < pageOfFollowers.values.length; i++) {
                 const followerHandle = pageOfFollowers.values[i].followerHandle;
-                const userEntity: UserEntity | null =
+                const userEntity: UserEntity | undefined =
                     await this.usersDAO.getUser(followerHandle);
-                if (userEntity !== null) {
+                if (userEntity !== undefined) {
                     const follower = new User(
                         userEntity.firstName,
                         userEntity.lastName,
@@ -80,9 +80,9 @@ export class FollowService {
             const followees: User[] = [];
             for (let i = 0; i < pageOfFollowees.values.length; i++) {
                 const followeeHandle = pageOfFollowees.values[i].followeeHandle;
-                const userEntity: UserEntity | null =
+                const userEntity: UserEntity | undefined =
                     await this.usersDAO.getUser(followeeHandle);
-                if (userEntity !== null) {
+                if (userEntity !== undefined) {
                     const followee = new User(
                         userEntity.firstName,
                         userEntity.lastName,
@@ -142,10 +142,9 @@ export class FollowService {
         );
 
         if (authenticated) {
-            const userEntity: UserEntity | null = await this.usersDAO.getUser(
-                user.alias
-            );
-            if (userEntity !== null) {
+            const userEntity: UserEntity | undefined =
+                await this.usersDAO.getUser(user.alias);
+            if (userEntity !== undefined) {
                 return userEntity.numFollowees;
             } else {
                 throw new Error("[Server Error] couldn't find user");
@@ -166,10 +165,9 @@ export class FollowService {
         );
 
         if (authenticated) {
-            const userEntity: UserEntity | null = await this.usersDAO.getUser(
-                user.alias
-            );
-            if (userEntity !== null) {
+            const userEntity: UserEntity | undefined =
+                await this.usersDAO.getUser(user.alias);
+            if (userEntity !== undefined) {
                 return userEntity.numFollowers;
             } else {
                 throw new Error("[Server Error] couldn't find user");
@@ -199,7 +197,7 @@ export class FollowService {
                 authToken.token
             );
             const userEntity = await this.usersDAO.getUser(userHandle);
-            if (userEntity === null) {
+            if (userEntity === undefined) {
                 throw new Error("[Server Error] couldn't find user");
             }
             await this.followsDAO.recordFollow(
@@ -232,10 +230,9 @@ export class FollowService {
             const userHandle = await this.authTokenDAO.getAuthTokenHandle(
                 authToken.token
             );
-            const userEntity: UserEntity | null = await this.usersDAO.getUser(
-                userHandle
-            );
-            if (userEntity === null) {
+            const userEntity: UserEntity | undefined =
+                await this.usersDAO.getUser(userHandle);
+            if (userEntity === undefined) {
                 throw new Error("[Server Error] couldn't find user");
             }
             await this.followsDAO.deleteFollow(

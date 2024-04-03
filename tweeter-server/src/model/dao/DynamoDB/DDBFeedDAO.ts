@@ -38,16 +38,16 @@ export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
     }
 
     //not being used so not implimented
-    getUpdateExpression(entity: StatusEntity): string {
+    getUpdateExpression(): string {
         throw new Error("Method not implemented.");
     }
     //not being used so not implimented
     getUpdateExpressionAttributeValues(entity: StatusEntity) {
         throw new Error("Method not implemented.");
     }
-    //not being used YET so not implemented
-    recordFeed(user: User): Promise<void> {
-        throw new Error("Method not implemented.");
+
+    async addStatus(statusEntity: StatusEntity): Promise<void> {
+        this.putItem(statusEntity);
     }
 
     //no idea if this will actually work

@@ -38,7 +38,7 @@ export class DDBAuthTokenDAO
         };
     }
 
-    getUpdateExpression(entity: AuthTokenEntity): string {
+    getUpdateExpression(): string {
         return "set timestamp = :value1";
     }
 

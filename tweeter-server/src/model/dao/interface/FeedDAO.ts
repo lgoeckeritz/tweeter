@@ -3,7 +3,7 @@ import { DataPage } from "../../entity/DataPage";
 import { StatusEntity } from "../../entity/StatusEntity";
 
 export interface FeedDAO {
-    recordFeed(user: User): Promise<void>; //not being used yet
+    addStatus(statusEntity: StatusEntity): Promise<void>;
     getFeed(
         user: User,
         pageSize: number,

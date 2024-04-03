@@ -48,7 +48,7 @@ export abstract class DDBDAO<T extends Entity> {
         const params = {
             TableName: this.tableName,
             Key: this.generateGetItem(entity),
-            UpdateExpression: this.getUpdateExpression(entity),
+            UpdateExpression: this.getUpdateExpression(),
             ExpressionAttributeValues:
                 this.getUpdateExpressionAttributeValues(entity),
         };
@@ -89,7 +89,7 @@ export abstract class DDBDAO<T extends Entity> {
      */
     abstract generatePutItem(entity: T): any;
 
-    abstract getUpdateExpression(entity: T): string;
+    abstract getUpdateExpression(): string;
 
     abstract getUpdateExpressionAttributeValues(entity: T): any;
 }

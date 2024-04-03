@@ -26,10 +26,9 @@ export class UserService {
         );
 
         if (authenticated) {
-            const userEntity: UserEntity | null = await this.usersDAO.getUser(
-                alias
-            );
-            if (userEntity !== null) {
+            const userEntity: UserEntity | undefined =
+                await this.usersDAO.getUser(alias);
+            if (userEntity !== undefined) {
                 return new User(
                     userEntity.firstName,
                     userEntity.lastName,
@@ -50,11 +49,9 @@ export class UserService {
         alias: string,
         password: string
     ): Promise<[User, AuthToken]> {
-        const userEntity: UserEntity | null = await this.usersDAO.loginUser(
-            alias,
-            password
-        );
-        if (userEntity !== null) {
+        const userEntity: UserEntity | undefined =
+            await this.usersDAO.loginUser(alias, password);
+        if (userEntity !== undefined) {
             //generate and store authToken
             const authToken: AuthToken = AuthToken.Generate();
             this.authTokenDAO.recordAuthToken(
@@ -85,14 +82,15 @@ export class UserService {
         //converting image string to image url
         const imageUrl = await this.imageDAO.putImage(alias, imageStringBase64);
 
-        const userEntity: UserEntity | null = await this.usersDAO.registerUser(
-            firstName,
-            lastName,
-            alias,
-            password,
-            imageUrl
-        );
-        if (userEntity !== null) {
+        const userEntity: UserEntity | undefined =
+            await this.usersDAO.registerUser(
+                firstName,
+                lastName,
+                alias,
+                password,
+                imageUrl
+            );
+        if (userEntity !== undefined) {
             //generate and store authToken
             const authToken: AuthToken = AuthToken.Generate();
             this.authTokenDAO.recordAuthToken(
