@@ -10,7 +10,7 @@ export class DDBAuthTokenDAO
     readonly token = "token";
     readonly time_stamp = "time_stamp";
     readonly user_handle = "user_handle";
-    readonly expirationTime = 1000000000; //TODO change this back to 10 after testing is finished
+    readonly expirationTime = 10;
 
     constructor() {
         super("authtokens");
@@ -64,25 +64,22 @@ export class DDBAuthTokenDAO
             currentToken
         );
         if (oldToken !== undefined) {
-            //TODO: for now just getting rid of timed out tokens for testing
-            return true;
+            //Calculate the difference in minutes
+            let differenceInMinutes =
+                Math.abs(currentToken.time_stamp - oldToken.time_stamp) /
+                1000 /
+                60;
 
-            // Calculate the difference in minutes
-            // let differenceInMinutes =
-            //     Math.abs(currentToken.time_stamp - oldToken?.time_stamp) /
-            //     1000 /
-            //     60;
-
-            // if (differenceInMinutes <= this.expirationTime) {
-            //     //now that the authtoken is valid, the time_stamp needs to be updated
-            //     currentToken.userHandle = oldToken.userHandle;
-            //     await this.updateItem(currentToken);
-            //     return true;
-            // } else {
-            //     //deletes the timed out authtoken
-            //     this.deleteAuthToken(token);
-            //     return false;
-            // }
+            if (differenceInMinutes <= this.expirationTime) {
+                //now that the authtoken is valid, the time_stamp needs to be updated
+                currentToken.userHandle = oldToken.userHandle;
+                await this.updateItem(currentToken);
+                return true;
+            } else {
+                //deletes the timed out authtoken
+                this.deleteAuthToken(token);
+                return false;
+            }
         } else {
             return false;
         }
