@@ -143,7 +143,8 @@ export class StatusService {
                     undefined
                 );
                 //adding the status to each of the followers of the user
-                followerPage.values.forEach(async (follow) => {
+                for (let i = 0; i < numFollowers; i++) {
+                    const follow = followerPage.values[i];
                     await this.feedDAO.addStatus(
                         new StatusEntity(
                             follow.followerHandle,
@@ -151,7 +152,7 @@ export class StatusService {
                             newStatus.toJson()
                         )
                     );
-                });
+                }
             }
         } else {
             throw new Error(
