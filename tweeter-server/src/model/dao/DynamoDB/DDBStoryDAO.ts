@@ -67,7 +67,7 @@ export class DDBStoryDAO extends DDBDAO<StatusEntity> implements StoryDAO {
                     ? undefined
                     : {
                           [this.author_handle]: user.alias,
-                          [this.status_json]: lastItem!.toJson,
+                          [this.time_stamp]: lastItem!.timestamp,
                       },
         });
     }
