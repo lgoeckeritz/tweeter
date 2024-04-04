@@ -1,82 +1,43 @@
 import { User, AuthToken } from "tweeter-shared";
-import { AuthTokenDAO } from "../dao/interface/AuthTokenDAO";
 import { DAOFactory } from "../dao/interface/DAOFactory";
-import { UsersDAO } from "../dao/interface/UsersDAO";
-import { ImageDAO } from "../dao/interface/ImageDAO";
 import { UserEntity } from "../entity/UserEntity";
 import { AuthTokenEntity } from "../entity/AuthTokenEntity";
+import { Service } from "./Service";
 
-export class UserService {
-    private authTokenDAO: AuthTokenDAO;
-    private usersDAO: UsersDAO;
-    private imageDAO: ImageDAO;
-
+export class UserService extends Service {
     constructor(daoFactory: DAOFactory) {
-        this.authTokenDAO = daoFactory.getAuthTokensDAO();
-        this.usersDAO = daoFactory.getUsersDAO();
-        this.imageDAO = daoFactory.getImageDAO();
+        super(daoFactory);
     }
 
     public async getUser(
         authToken: AuthToken,
         alias: string
     ): Promise<User | null> {
-        //checking to make sure request is good
-        if (authToken === null || alias === null) {
-            throw new Error("[Bad Request] part or all of the request is null");
-        }
+        this.verfiyRequestData([authToken, alias]);
+        this.authenticate(authToken.token);
 
-        const authenticated: boolean = await this.authTokenDAO.authenticate(
-            authToken.token
+        const userEntity: UserEntity | undefined = await this.usersDAO.getUser(
+            alias
         );
-
-        if (authenticated) {
-            const userEntity: UserEntity | undefined =
-                await this.usersDAO.getUser(alias);
-            if (userEntity !== undefined) {
-                return new User(
-                    userEntity.firstName,
-                    userEntity.lastName,
-                    userEntity.alias,
-                    userEntity.imageUrl
-                );
-            } else {
-                return null;
-            }
-        } else {
-            throw new Error(
-                "[Forbidden Error] authtoken either doesn't exist or is timed out"
-            );
-        }
+        this.verifyReturn(userEntity);
+        return new User(
+            userEntity!.firstName,
+            userEntity!.lastName,
+            userEntity!.alias,
+            userEntity!.imageUrl
+        );
     }
 
     public async login(
         alias: string,
         password: string
     ): Promise<[User, AuthToken]> {
-        //checking to make sure request is good
-        if (password === null || alias === null) {
-            throw new Error("[Bad Request] part or all of the request is null");
-        }
+        this.verfiyRequestData([alias, password]);
 
         const userEntity: UserEntity | undefined =
             await this.usersDAO.loginUser(alias, password);
         if (userEntity !== undefined) {
-            //generate and store authToken
-            const authToken: AuthToken = AuthToken.Generate();
-            await this.authTokenDAO.recordAuthToken(
-                new AuthTokenEntity(authToken.token, authToken.timestamp, alias)
-            );
-
-            //generating user from userEntity
-            const user = new User(
-                userEntity.firstName,
-                userEntity.lastName,
-                userEntity.alias,
-                userEntity.imageUrl
-            );
-
-            return [user, authToken];
+            return await this.returnUserToken(userEntity, alias);
         } else {
             throw new Error("[Forbidden Error] Invalid alias or password");
         }
@@ -89,16 +50,13 @@ export class UserService {
         password: string,
         imageStringBase64: string
     ): Promise<[User, AuthToken]> {
-        //checking to make sure request is good
-        if (
-            firstName === null ||
-            lastName === null ||
-            alias === null ||
-            password === null ||
-            imageStringBase64 === null
-        ) {
-            throw new Error("[Bad Request] part or all of the request is null");
-        }
+        this.verfiyRequestData([
+            firstName,
+            lastName,
+            alias,
+            password,
+            imageStringBase64,
+        ]);
 
         //converting image string to image url
         const imageUrl = await this.imageDAO.putImage(alias, imageStringBase64);
@@ -112,21 +70,7 @@ export class UserService {
                 imageUrl
             );
         if (userEntity !== undefined) {
-            //generate and store authToken
-            const authToken: AuthToken = AuthToken.Generate();
-            await this.authTokenDAO.recordAuthToken(
-                new AuthTokenEntity(authToken.token, authToken.timestamp, alias)
-            );
-
-            //generating user from userEntity
-            const user = new User(
-                userEntity.firstName,
-                userEntity.lastName,
-                userEntity.alias,
-                userEntity.imageUrl
-            );
-
-            return [user, authToken];
+            return await this.returnUserToken(userEntity, alias);
         } else {
             throw new Error("[Forbidden Error] Invalid registration");
         }
@@ -134,5 +78,26 @@ export class UserService {
 
     public async logout(authToken: AuthToken): Promise<void> {
         await this.authTokenDAO.deleteAuthToken(authToken.token);
+    }
+
+    private async returnUserToken(
+        userEntity: UserEntity,
+        alias: string
+    ): Promise<[User, AuthToken]> {
+        //generate and store authToken
+        const authToken: AuthToken = AuthToken.Generate();
+        await this.authTokenDAO.recordAuthToken(
+            new AuthTokenEntity(authToken.token, authToken.timestamp, alias)
+        );
+
+        //generating user from userEntity
+        const user = new User(
+            userEntity.firstName,
+            userEntity.lastName,
+            userEntity.alias,
+            userEntity.imageUrl
+        );
+
+        return [user, authToken];
     }
 }

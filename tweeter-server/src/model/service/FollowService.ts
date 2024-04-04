@@ -1,21 +1,13 @@
 import { AuthToken, User } from "tweeter-shared";
-import { AuthTokenDAO } from "../dao/interface/AuthTokenDAO";
 import { DAOFactory } from "../dao/interface/DAOFactory";
-import { FollowsDAO } from "../dao/interface/FollowsDAO";
 import { DataPage } from "../entity/DataPage";
 import { FollowEntity } from "../entity/FollowEntity";
-import { UsersDAO } from "../dao/interface/UsersDAO";
 import { UserEntity } from "../entity/UserEntity";
+import { Service } from "./Service";
 
-export class FollowService {
-    private authTokenDAO: AuthTokenDAO;
-    private followsDAO: FollowsDAO;
-    private usersDAO: UsersDAO;
-
+export class FollowService extends Service {
     constructor(daoFactory: DAOFactory) {
-        this.authTokenDAO = daoFactory.getAuthTokensDAO();
-        this.followsDAO = daoFactory.getFollowsDAO();
-        this.usersDAO = daoFactory.getUsersDAO();
+        super(daoFactory);
     }
 
     public async loadMoreFollowers(
@@ -24,44 +16,32 @@ export class FollowService {
         pageSize: number,
         lastItem: User | null
     ): Promise<[User[], boolean]> {
-        //checking to make sure request is good
-        if (user === null || authToken === null || pageSize === null) {
-            throw new Error("[Bad Request] part or all of the request is null");
-        }
+        this.verfiyRequestData([authToken, user, pageSize]);
+        this.authenticate(authToken.token);
 
-        const authenticated: boolean = await this.authTokenDAO.authenticate(
-            authToken.token
+        const pageOfFollowers = await this.followsDAO.getPageOfFollowers(
+            user.alias,
+            pageSize,
+            lastItem?.alias
         );
-
-        if (authenticated) {
-            const pageOfFollowers = await this.followsDAO.getPageOfFollowers(
-                user.alias,
-                pageSize,
-                lastItem?.alias
-            );
-            // converting to array of user's followers
-            const followers: User[] = [];
-            for (let i = 0; i < pageOfFollowers.values.length; i++) {
-                const followerHandle = pageOfFollowers.values[i].followerHandle;
-                const userEntity: UserEntity | undefined =
-                    await this.usersDAO.getUser(followerHandle);
-                if (userEntity !== undefined) {
-                    const follower = new User(
-                        userEntity.firstName,
-                        userEntity.lastName,
-                        userEntity.alias,
-                        userEntity.imageUrl
-                    );
-                    followers.push(follower);
-                }
+        // converting to array of user's followers
+        const followers: User[] = [];
+        for (let i = 0; i < pageOfFollowers.values.length; i++) {
+            const followerHandle = pageOfFollowers.values[i].followerHandle;
+            const userEntity: UserEntity | undefined =
+                await this.usersDAO.getUser(followerHandle);
+            if (userEntity !== undefined) {
+                const follower = new User(
+                    userEntity.firstName,
+                    userEntity.lastName,
+                    userEntity.alias,
+                    userEntity.imageUrl
+                );
+                followers.push(follower);
             }
-
-            return [followers, pageOfFollowers.hasMorePages];
-        } else {
-            throw new Error(
-                "[Forbidden Error] authtoken either doesn't exist or is timed out"
-            );
         }
+
+        return [followers, pageOfFollowers.hasMorePages];
     }
 
     public async loadMoreFollowees(
@@ -70,45 +50,33 @@ export class FollowService {
         pageSize: number,
         lastItem: User | null
     ): Promise<[User[], boolean]> {
-        //checking to make sure request is good
-        if (user === null || authToken === null || pageSize === null) {
-            throw new Error("[Bad Request] part or all of the request is null");
-        }
+        this.verfiyRequestData([authToken, user, pageSize]);
+        this.authenticate(authToken.token);
 
-        const authenticated: boolean = await this.authTokenDAO.authenticate(
-            authToken.token
-        );
-
-        if (authenticated) {
-            const pageOfFollowees: DataPage<FollowEntity> =
-                await this.followsDAO.getPageOfFollowees(
-                    user.alias,
-                    pageSize,
-                    lastItem?.alias
-                );
-            // converting to array of user's followees
-            const followees: User[] = [];
-            for (let i = 0; i < pageOfFollowees.values.length; i++) {
-                const followeeHandle = pageOfFollowees.values[i].followeeHandle;
-                const userEntity: UserEntity | undefined =
-                    await this.usersDAO.getUser(followeeHandle);
-                if (userEntity !== undefined) {
-                    const followee = new User(
-                        userEntity.firstName,
-                        userEntity.lastName,
-                        userEntity.alias,
-                        userEntity.imageUrl
-                    );
-                    followees.push(followee);
-                }
-            }
-
-            return [followees, pageOfFollowees.hasMorePages];
-        } else {
-            throw new Error(
-                "[Forbidden Error] authtoken either doesn't exist or is timed out"
+        const pageOfFollowees: DataPage<FollowEntity> =
+            await this.followsDAO.getPageOfFollowees(
+                user.alias,
+                pageSize,
+                lastItem?.alias
             );
+        // converting to array of user's followees
+        const followees: User[] = [];
+        for (let i = 0; i < pageOfFollowees.values.length; i++) {
+            const followeeHandle = pageOfFollowees.values[i].followeeHandle;
+            const userEntity: UserEntity | undefined =
+                await this.usersDAO.getUser(followeeHandle);
+            if (userEntity !== undefined) {
+                const followee = new User(
+                    userEntity.firstName,
+                    userEntity.lastName,
+                    userEntity.alias,
+                    userEntity.imageUrl
+                );
+                followees.push(followee);
+            }
         }
+
+        return [followees, pageOfFollowees.hasMorePages];
     }
 
     public async getIsFollowerStatus(
@@ -116,35 +84,22 @@ export class FollowService {
         user: User,
         selectedUser: User
     ): Promise<boolean> {
-        //checking to make sure request is good
-        if (user === null || authToken === null || selectedUser === null) {
-            throw new Error("[Bad Request] part or all of the request is null");
-        }
+        this.verfiyRequestData([authToken, user, selectedUser]);
+        this.authenticate(authToken.token);
 
-        const authenticated: boolean = await this.authTokenDAO.authenticate(
-            authToken.token
+        const follow = new FollowEntity(
+            user.alias,
+            user.firstName,
+            selectedUser.alias,
+            selectedUser.firstName
         );
+        const result: FollowEntity | undefined =
+            await this.followsDAO.getFollow(follow);
 
-        if (authenticated) {
-            //may have to be updated to first and last names?
-            const follow = new FollowEntity(
-                user.alias,
-                user.firstName,
-                selectedUser.alias,
-                selectedUser.firstName
-            );
-            const result: FollowEntity | undefined =
-                await this.followsDAO.getFollow(follow);
-
-            if (result !== undefined) {
-                return true;
-            } else {
-                return false;
-            }
+        if (result !== undefined) {
+            return true;
         } else {
-            throw new Error(
-                "[Forbidden Error] authtoken either doesn't exist or is timed out"
-            );
+            return false;
         }
     }
 
@@ -152,143 +107,86 @@ export class FollowService {
         authToken: AuthToken,
         user: User
     ): Promise<number> {
-        //checking to make sure request is good
-        if (user === null || authToken === null) {
-            throw new Error("[Bad Request] part or all of the request is null");
-        }
+        this.verfiyRequestData([authToken, user]);
+        this.authenticate(authToken.token);
 
-        const authenticated: boolean = await this.authTokenDAO.authenticate(
-            authToken.token
+        const userEntity: UserEntity | undefined = await this.usersDAO.getUser(
+            user.alias
         );
-
-        if (authenticated) {
-            const userEntity: UserEntity | undefined =
-                await this.usersDAO.getUser(user.alias);
-            if (userEntity !== undefined) {
-                return userEntity.numFollowees;
-            } else {
-                throw new Error("[Server Error] couldn't find user");
-            }
-        } else {
-            throw new Error(
-                "[Forbidden Error] authtoken either doesn't exist or is timed out"
-            );
-        }
+        this.verifyReturn(userEntity);
+        return userEntity!.numFollowees;
     }
 
     public async getFollowersCount(
         authToken: AuthToken,
         user: User
     ): Promise<number> {
-        //checking to make sure request is good
-        if (user === null || authToken === null) {
-            throw new Error("[Bad Request] part or all of the request is null");
-        }
+        this.verfiyRequestData([authToken, user]);
+        this.authenticate(authToken.token);
 
-        const authenticated: boolean = await this.authTokenDAO.authenticate(
-            authToken.token
+        const userEntity: UserEntity | undefined = await this.usersDAO.getUser(
+            user.alias
         );
-
-        if (authenticated) {
-            const userEntity: UserEntity | undefined =
-                await this.usersDAO.getUser(user.alias);
-            if (userEntity !== undefined) {
-                return userEntity.numFollowers;
-            } else {
-                throw new Error("[Server Error] couldn't find user");
-            }
-        } else {
-            throw new Error(
-                "[Forbidden Error] authtoken either doesn't exist or is timed out"
-            );
-        }
+        this.verifyReturn(userEntity);
+        return userEntity!.numFollowers;
     }
 
     public async follow(
         authToken: AuthToken,
         userToFollow: User
     ): Promise<[followersCount: number, followeesCount: number]> {
-        //checking to make sure request is good
-        if (userToFollow === null || authToken === null) {
-            throw new Error("[Bad Request] part or all of the request is null");
-        }
-
-        const authenticated: boolean = await this.authTokenDAO.authenticate(
-            authToken.token
+        this.verfiyRequestData([authToken, userToFollow]);
+        return await this.updateFollow(
+            authToken.token,
+            userToFollow.alias,
+            userToFollow.firstName,
+            1
         );
-
-        if (authenticated) {
-            //getting the user
-            const userHandle = await this.authTokenDAO.getAuthTokenHandle(
-                authToken.token
-            );
-            const userEntity = await this.usersDAO.getUser(userHandle);
-            if (userEntity === undefined) {
-                throw new Error("[Server Error] couldn't find user");
-            }
-            await this.followsDAO.putFollow(
-                new FollowEntity(
-                    userEntity.alias,
-                    userEntity.firstName,
-                    userToFollow.alias,
-                    userToFollow.firstName
-                )
-            );
-            //need to increment followers and following on this user and the
-            //user that has just been followed
-            await this.usersDAO.updateNumFollowing(userEntity.alias, 1);
-            await this.usersDAO.updateNumFollowers(userToFollow.alias, 1);
-
-            return [userEntity.numFollowers, userEntity.numFollowees];
-        } else {
-            throw new Error(
-                "[Forbidden Error] authtoken either doesn't exist or is timed out"
-            );
-        }
     }
 
     public async unfollow(
         authToken: AuthToken,
         userToUnfollow: User
     ): Promise<[followersCount: number, followeesCount: number]> {
-        //checking to make sure request is good
-        if (userToUnfollow === null || authToken === null) {
-            throw new Error("[Bad Request] part or all of the request is null");
-        }
+        this.verfiyRequestData([authToken, userToUnfollow]);
+        return await this.updateFollow(
+            authToken.token,
+            userToUnfollow.alias,
+            userToUnfollow.firstName,
+            -1
+        );
+    }
 
-        const authenticated: boolean = await this.authTokenDAO.authenticate(
-            authToken.token
+    private async updateFollow(
+        token: string,
+        userAlias: string,
+        userFirstName: string,
+        numToIncrement: number
+    ): Promise<[followersCount: number, followeesCount: number]> {
+        this.authenticate(token);
+
+        //getting the user
+        const userHandle = await this.authTokenDAO.getAuthTokenHandle(token);
+        const userEntity: UserEntity | undefined = await this.usersDAO.getUser(
+            userHandle
+        );
+        this.verifyReturn(userEntity);
+        await this.followsDAO.deleteFollow(
+            new FollowEntity(
+                userEntity!.alias,
+                userEntity!.firstName,
+                userAlias,
+                userFirstName
+            )
         );
 
-        if (authenticated) {
-            //getting the user
-            const userHandle = await this.authTokenDAO.getAuthTokenHandle(
-                authToken.token
-            );
-            const userEntity: UserEntity | undefined =
-                await this.usersDAO.getUser(userHandle);
-            if (userEntity === undefined) {
-                throw new Error("[Server Error] couldn't find user");
-            }
-            await this.followsDAO.deleteFollow(
-                new FollowEntity(
-                    userEntity.alias,
-                    userEntity.firstName,
-                    userToUnfollow.alias,
-                    userToUnfollow.firstName
-                )
-            );
+        //adjusting follower and followees count
+        await this.usersDAO.updateNumFollowing(
+            userEntity!.alias,
+            numToIncrement
+        );
+        await this.usersDAO.updateNumFollowers(userAlias, numToIncrement);
 
-            //need to decrement followers and following on this user and the
-            //user that has just been unfollowed
-            await this.usersDAO.updateNumFollowing(userEntity.alias, -1);
-            await this.usersDAO.updateNumFollowers(userToUnfollow.alias, -1);
-
-            return [userEntity.numFollowers, userEntity.numFollowees];
-        } else {
-            throw new Error(
-                "[Forbidden Error] authtoken either doesn't exist or is timed out"
-            );
-        }
+        return [userEntity!.numFollowers, userEntity!.numFollowees];
     }
 }
