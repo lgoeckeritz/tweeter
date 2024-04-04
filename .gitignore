@@ -7,6 +7,8 @@
 /tweeter-server/node_modules
 /tweeter-server/nodejs
 /tweeter-server/dist
+/tweeter-server/dist.zip
+/tweeter-server/nodejs.zip
 
 # testing
 /coverage
