@@ -47,7 +47,7 @@ export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
     }
 
     async addStatus(statusEntity: StatusEntity): Promise<void> {
-        this.putItem(statusEntity);
+        await this.putItem(statusEntity);
     }
 
     //no idea if this will actually work

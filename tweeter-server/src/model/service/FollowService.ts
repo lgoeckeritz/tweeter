@@ -204,7 +204,6 @@ export class FollowService {
         }
     }
 
-    //needs to update a users follow count
     public async follow(
         authToken: AuthToken,
         userToFollow: User
@@ -237,6 +236,8 @@ export class FollowService {
             );
             //need to increment followers and following on this user and the
             //user that has just been followed
+            await this.usersDAO.updateNumFollowing(userEntity.alias, 1);
+            await this.usersDAO.updateNumFollowers(userToFollow.alias, 1);
 
             return [userEntity.numFollowers, userEntity.numFollowees];
         } else {
@@ -246,7 +247,6 @@ export class FollowService {
         }
     }
 
-    //needs to update a users follow count
     public async unfollow(
         authToken: AuthToken,
         userToUnfollow: User
@@ -281,6 +281,9 @@ export class FollowService {
 
             //need to decrement followers and following on this user and the
             //user that has just been unfollowed
+            await this.usersDAO.updateNumFollowing(userEntity.alias, -1);
+            await this.usersDAO.updateNumFollowers(userToUnfollow.alias, -1);
+
             return [userEntity.numFollowers, userEntity.numFollowees];
         } else {
             throw new Error(

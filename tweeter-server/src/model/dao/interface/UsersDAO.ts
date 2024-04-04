@@ -9,4 +9,6 @@ export interface UsersDAO {
         imageUrl: string
     ): Promise<UserEntity | undefined>;
     getUser(userHandle: string): Promise<UserEntity | undefined>;
+    updateNumFollowing(handle: string, numToAdd: number): Promise<void>;
+    updateNumFollowers(handle: string, numToAdd: number): Promise<void>;
 }

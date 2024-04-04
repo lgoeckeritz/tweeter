@@ -103,4 +103,27 @@ export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
     async getUser(userHandle: string): Promise<UserEntity | undefined> {
         return this.getItem(new UserEntity("", "", userHandle, "", "", 0, 0));
     }
+
+    async updateNumFollowing(handle: string, numToAdd: number): Promise<void> {
+        //getting the user to update
+        const userToUpdate: UserEntity | undefined = await this.getItem(
+            new UserEntity("", "", handle, "", "", 0, 0)
+        );
+        //updating the following count
+        if (userToUpdate !== undefined) {
+            userToUpdate.numFollowees += numToAdd;
+            await this.updateItem(userToUpdate);
+        }
+    }
+    async updateNumFollowers(handle: string, numToAdd: number): Promise<void> {
+        //getting the user to update
+        const userToUpdate: UserEntity | undefined = await this.getItem(
+            new UserEntity("", "", handle, "", "", 0, 0)
+        );
+        //updating the following count
+        if (userToUpdate !== undefined) {
+            userToUpdate.numFollowers += numToAdd;
+            await this.updateItem(userToUpdate);
+        }
+    }
 }
