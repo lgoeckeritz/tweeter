@@ -1,3 +1,5 @@
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { AuthTokenDAO } from "../interface/AuthTokenDAO";
 import { DAOFactory } from "../interface/DAOFactory";
 import { FeedDAO } from "../interface/FeedDAO";
@@ -13,20 +15,24 @@ import { DDBUsersDAO } from "./DDBUsersDAO";
 import { S3ImageDAO } from "./S3ImageDAO";
 
 export class DDBDAOFactory implements DAOFactory {
+    protected readonly client = DynamoDBDocumentClient.from(
+        new DynamoDBClient()
+    );
+
     getAuthTokensDAO(): AuthTokenDAO {
-        return new DDBAuthTokenDAO();
+        return new DDBAuthTokenDAO(this.client);
     }
     getFeedDAO(): FeedDAO {
-        return new DDBFeedDAO();
+        return new DDBFeedDAO(this.client);
     }
     getFollowsDAO(): FollowsDAO {
-        return new DDBFollowsDAO();
+        return new DDBFollowsDAO(this.client);
     }
     getStoryDAO(): StoryDAO {
-        return new DDBStoryDAO();
+        return new DDBStoryDAO(this.client);
     }
     getUsersDAO(): UsersDAO {
-        return new DDBUsersDAO();
+        return new DDBUsersDAO(this.client);
     }
     getImageDAO(): ImageDAO {
         return new S3ImageDAO();

@@ -1,4 +1,4 @@
-import { GetCommandOutput } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { AuthTokenEntity } from "../../entity/AuthTokenEntity";
 import { AuthTokenDAO } from "../interface/AuthTokenDAO";
 import { DDBDAO } from "./DDBDAO";
@@ -12,8 +12,8 @@ export class DDBAuthTokenDAO
     readonly user_handle = "user_handle";
     readonly expirationTime = 10;
 
-    constructor() {
-        super("authtokens");
+    constructor(client: DynamoDBDocumentClient) {
+        super("authtokens", client);
     }
 
     generateGetItem(authtoken: AuthTokenEntity) {
@@ -22,11 +22,11 @@ export class DDBAuthTokenDAO
         };
     }
 
-    newEntity(output: GetCommandOutput): AuthTokenEntity {
+    newEntity(item: Record<string, any>): AuthTokenEntity {
         return new AuthTokenEntity(
-            output.Item![this.token],
-            output.Item![this.time_stamp],
-            output.Item![this.user_handle]
+            item[this.token],
+            item[this.time_stamp],
+            item[this.user_handle]
         );
     }
 

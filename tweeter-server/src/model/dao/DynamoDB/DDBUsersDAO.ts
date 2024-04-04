@@ -1,4 +1,4 @@
-import { GetCommandOutput } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { UserEntity } from "../../entity/UserEntity";
 import { UsersDAO } from "../interface/UsersDAO";
 import { DDBDAO } from "./DDBDAO";
@@ -11,19 +11,19 @@ export class DDBUsersDAO extends DDBDAO<UserEntity> implements UsersDAO {
     readonly num_followers = "num_followers";
     readonly num_followees = "num_followees";
 
-    constructor() {
-        super("users");
+    constructor(client: DynamoDBDocumentClient) {
+        super("users", client);
     }
 
-    newEntity(output: GetCommandOutput): UserEntity {
+    newEntity(item: Record<string, any>): UserEntity {
         return new UserEntity(
-            output.Item![this.first_name],
-            output.Item![this.last_name],
-            output.Item![this.handle],
-            output.Item![this.image_url],
-            output.Item![this.password],
-            output.Item![this.num_followers],
-            output.Item![this.num_followees]
+            item[this.first_name],
+            item[this.last_name],
+            item[this.handle],
+            item[this.image_url],
+            item[this.password],
+            item[this.num_followers],
+            item[this.num_followees]
         );
     }
 

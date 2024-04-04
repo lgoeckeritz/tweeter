@@ -12,7 +12,7 @@ export interface FollowsDAO {
         pageSize: number,
         lastFolloweeHandle: string | undefined
     ): Promise<DataPage<FollowEntity>>;
-    recordFollow(follow: FollowEntity): Promise<void>;
+    putFollow(follow: FollowEntity): Promise<void>;
     getFollow(follow: FollowEntity): Promise<FollowEntity | undefined>;
     deleteFollow(follow: FollowEntity): Promise<void>;
 }

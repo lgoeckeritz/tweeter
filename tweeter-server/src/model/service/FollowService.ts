@@ -226,7 +226,7 @@ export class FollowService {
             if (userEntity === undefined) {
                 throw new Error("[Server Error] couldn't find user");
             }
-            await this.followsDAO.recordFollow(
+            await this.followsDAO.putFollow(
                 new FollowEntity(
                     userEntity.alias,
                     userEntity.firstName,

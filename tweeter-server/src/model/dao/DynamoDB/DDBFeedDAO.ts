@@ -3,22 +3,22 @@ import { DataPage } from "../../entity/DataPage";
 import { StatusEntity } from "../../entity/StatusEntity";
 import { FeedDAO } from "../interface/FeedDAO";
 import { DDBDAO } from "./DDBDAO";
-import { GetCommandOutput, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
     readonly owner_handle = "owner_handle";
     readonly time_stamp = "time_stamp";
     readonly status_json = "status_json";
 
-    constructor() {
-        super("feed");
+    constructor(client: DynamoDBDocumentClient) {
+        super("feed", client);
     }
 
-    newEntity(output: GetCommandOutput): StatusEntity {
+    newEntity(item: Record<string, any>): StatusEntity {
         return new StatusEntity(
-            output.Item![this.owner_handle],
-            output.Item![this.time_stamp],
-            output.Item![this.status_json]
+            item[this.owner_handle],
+            item[this.time_stamp],
+            item[this.status_json]
         );
     }
 
@@ -50,13 +50,12 @@ export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
         await this.putItem(statusEntity);
     }
 
-    //no idea if this will actually work
     async getFeed(
         user: User,
         pageSize: number,
         lastItem: Status | null
     ): Promise<DataPage<StatusEntity>> {
-        const params = {
+        return await this.getPageOfItems({
             KeyConditionExpression: this.owner_handle + " = :v",
             ExpressionAttributeValues: {
                 ":v": user.alias,
@@ -70,20 +69,6 @@ export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
                           [this.owner_handle]: user.alias,
                           [this.status_json]: lastItem!.toJson(),
                       },
-        };
-
-        const items: StatusEntity[] = [];
-        const data = await this.client.send(new QueryCommand(params));
-        const hasMorePages = data.LastEvaluatedKey !== undefined;
-        data.Items?.forEach((item) =>
-            items.push(
-                new StatusEntity(
-                    item[this.owner_handle],
-                    item[this.time_stamp],
-                    item[this.status_json]
-                )
-            )
-        );
-        return new DataPage<StatusEntity>(items, hasMorePages);
+        });
     }
 }

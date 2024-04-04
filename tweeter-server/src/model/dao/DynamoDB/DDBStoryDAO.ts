@@ -3,22 +3,22 @@ import { DataPage } from "../../entity/DataPage";
 import { StatusEntity } from "../../entity/StatusEntity";
 import { StoryDAO } from "../interface/StoryDAO";
 import { DDBDAO } from "./DDBDAO";
-import { GetCommandOutput, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 export class DDBStoryDAO extends DDBDAO<StatusEntity> implements StoryDAO {
     readonly author_handle = "author_handle";
     readonly time_stamp = "time_stamp";
     readonly status_json = "status_json";
 
-    constructor() {
-        super("story");
+    constructor(client: DynamoDBDocumentClient) {
+        super("story", client);
     }
 
-    newEntity(output: GetCommandOutput): StatusEntity {
+    newEntity(item: Record<string, any>): StatusEntity {
         return new StatusEntity(
-            output.Item![this.author_handle],
-            output.Item![this.time_stamp],
-            output.Item![this.status_json]
+            item[this.author_handle],
+            item[this.time_stamp],
+            item[this.status_json]
         );
     }
 
@@ -55,7 +55,7 @@ export class DDBStoryDAO extends DDBDAO<StatusEntity> implements StoryDAO {
         pageSize: number,
         lastItem: Status | null
     ): Promise<DataPage<StatusEntity>> {
-        const params = {
+        return await this.getPageOfItems({
             KeyConditionExpression: this.author_handle + " = :v",
             ExpressionAttributeValues: {
                 ":v": user.alias,
@@ -69,20 +69,6 @@ export class DDBStoryDAO extends DDBDAO<StatusEntity> implements StoryDAO {
                           [this.author_handle]: user.alias,
                           [this.status_json]: lastItem!.toJson,
                       },
-        };
-
-        const items: StatusEntity[] = [];
-        const data = await this.client.send(new QueryCommand(params));
-        const hasMorePages = data.LastEvaluatedKey !== undefined;
-        data.Items?.forEach((item) =>
-            items.push(
-                new StatusEntity(
-                    item[this.author_handle],
-                    item[this.time_stamp],
-                    item[this.status_json]
-                )
-            )
-        );
-        return new DataPage<StatusEntity>(items, hasMorePages);
+        });
     }
 }

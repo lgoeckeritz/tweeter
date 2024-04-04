@@ -2,39 +2,38 @@ import {
     DeleteCommand,
     DynamoDBDocumentClient,
     GetCommand,
-    GetCommandOutput,
     PutCommand,
+    QueryCommand,
     UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { Entity } from "../../entity/Entity";
+import { DataPage } from "../../entity/DataPage";
 
 export abstract class DDBDAO<T extends Entity> {
     readonly tableName: string;
 
-    protected readonly client = DynamoDBDocumentClient.from(
-        new DynamoDBClient()
-    );
+    protected readonly client: DynamoDBDocumentClient;
 
-    constructor(tableName: string) {
+    constructor(tableName: string, client: DynamoDBDocumentClient) {
         this.tableName = tableName;
+        this.client = client;
     }
 
     //might not be needed?
-    async recordItem(entity: T): Promise<void> {
-        //load if it doesn't exist
-        const itemInDatabase: T | undefined = await this.getItem(entity);
-        if (itemInDatabase !== undefined) {
-            console.log(
-                "This item is already in the ",
-                this.tableName,
-                "table, updating values of existing item"
-            );
-            await this.updateItem(entity);
-        } else {
-            await this.putItem(entity);
-        }
-    }
+    // async recordItem(entity: T): Promise<void> {
+    //     //load if it doesn't exist
+    //     const itemInDatabase: T | undefined = await this.getItem(entity);
+    //     if (itemInDatabase !== undefined) {
+    //         console.log(
+    //             "This item is already in the ",
+    //             this.tableName,
+    //             "table, updating values of existing item"
+    //         );
+    //         await this.updateItem(entity);
+    //     } else {
+    //         await this.putItem(entity);
+    //     }
+    // }
 
     async putItem(entity: T): Promise<void> {
         const params = {
@@ -61,10 +60,12 @@ export abstract class DDBDAO<T extends Entity> {
             Key: this.generateGetItem(entity),
         };
         const output = await this.client.send(new GetCommand(params));
-        return output.Item == undefined ? undefined : this.newEntity(output);
+        return output.Item == undefined
+            ? undefined
+            : this.newEntity(output.Item);
     }
 
-    abstract newEntity(output: GetCommandOutput): T;
+    abstract newEntity(item: Record<string, any>): T;
 
     async deleteItem(entity: T): Promise<void> {
         const params = {
@@ -72,6 +73,15 @@ export abstract class DDBDAO<T extends Entity> {
             Key: this.generateGetItem(entity),
         };
         await this.client.send(new DeleteCommand(params));
+    }
+
+    async getPageOfItems(params: any): Promise<DataPage<T>> {
+        const items: T[] = [];
+        const data = await this.client.send(new QueryCommand(params));
+        const hasMorePages = data.LastEvaluatedKey !== undefined;
+        data.Items?.forEach((item) => items.push(this.newEntity(item)));
+
+        return new DataPage<T>(items, hasMorePages);
     }
 
     /**
