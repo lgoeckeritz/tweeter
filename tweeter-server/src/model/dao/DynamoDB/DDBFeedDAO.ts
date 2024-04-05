@@ -69,6 +69,7 @@ export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
                           [this.owner_handle]: user.alias,
                           [this.time_stamp]: lastItem!.timestamp,
                       },
+            ScanIndexForward: false,
         });
     }
 }
