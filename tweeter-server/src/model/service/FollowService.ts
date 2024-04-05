@@ -135,33 +135,37 @@ export class FollowService extends Service {
         authToken: AuthToken,
         userToFollow: User
     ): Promise<[followersCount: number, followeesCount: number]> {
-        return await this.updateFollow(
-            authToken,
-            userToFollow,
-            this.followsDAO.deleteFollow,
-            1
+        this.verfiyRequestData([authToken, userToFollow]);
+        this.authenticate(authToken.token);
+
+        const userHandle = await this.authTokenDAO.getAuthTokenHandle(
+            authToken.token
         );
+        const userEntity = await this.usersDAO.getUser(userHandle);
+        if (userEntity === undefined) {
+            throw new Error("[Server Error] couldn't find user");
+        }
+        await this.followsDAO.putFollow(
+            new FollowEntity(
+                userEntity.alias,
+                userEntity.firstName,
+                userToFollow.alias,
+                userToFollow.firstName
+            )
+        );
+        //need to increment followers and following on this user and the
+        //user that has just been followed
+        await this.usersDAO.updateNumFollowing(userEntity.alias, 1);
+        await this.usersDAO.updateNumFollowers(userToFollow.alias, 1);
+
+        return [userEntity.numFollowers, userEntity.numFollowees];
     }
 
     public async unfollow(
         authToken: AuthToken,
         userToUnfollow: User
     ): Promise<[followersCount: number, followeesCount: number]> {
-        return await this.updateFollow(
-            authToken,
-            userToUnfollow,
-            this.followsDAO.deleteFollow,
-            -1
-        );
-    }
-
-    public async updateFollow(
-        authToken: AuthToken,
-        userToUpdate: User,
-        followFunction: (follow: FollowEntity) => Promise<void>,
-        numIncrement: number
-    ): Promise<[followersCount: number, followeesCount: number]> {
-        this.verfiyRequestData([authToken, numIncrement]);
+        this.verfiyRequestData([authToken, userToUnfollow]);
         this.authenticate(authToken.token);
 
         const userHandle = await this.authTokenDAO.getAuthTokenHandle(
@@ -173,23 +177,60 @@ export class FollowService extends Service {
         if (userEntity === undefined) {
             throw new Error("[Server Error] couldn't find user");
         }
-        await followFunction(
+        await this.followsDAO.deleteFollow(
             new FollowEntity(
                 userEntity.alias,
                 userEntity.firstName,
-                userToUpdate.alias,
-                userToUpdate.firstName
+                userToUnfollow.alias,
+                userToUnfollow.firstName
             )
         );
 
-        //need to update followers and following on this user and the
+        //need to decrement followers and following on this user and the
         //user that has just been unfollowed
-        await this.usersDAO.updateNumFollowing(userEntity.alias, numIncrement);
-        await this.usersDAO.updateNumFollowers(
-            userToUpdate.alias,
-            numIncrement
-        );
+        await this.usersDAO.updateNumFollowing(userEntity.alias, -1);
+        await this.usersDAO.updateNumFollowers(userToUnfollow.alias, -1);
 
         return [userEntity.numFollowers, userEntity.numFollowees];
     }
+
+    // not working yet, not sure if I need it to work
+
+    // public async updateFollow(
+    //     authToken: AuthToken,
+    //     userToUpdate: User,
+    //     followFunction: (follow: FollowEntity) => Promise<void>,
+    //     numIncrement: number
+    // ): Promise<[followersCount: number, followeesCount: number]> {
+    //     this.verfiyRequestData([authToken, numIncrement]);
+    //     this.authenticate(authToken.token);
+
+    //     const userHandle = await this.authTokenDAO.getAuthTokenHandle(
+    //         authToken.token
+    //     );
+    //     const userEntity: UserEntity | undefined = await this.usersDAO.getUser(
+    //         userHandle
+    //     );
+    //     if (userEntity === undefined) {
+    //         throw new Error("[Server Error] couldn't find user");
+    //     }
+    //     await followFunction(
+    //         new FollowEntity(
+    //             userEntity.alias,
+    //             userEntity.firstName,
+    //             userToUpdate.alias,
+    //             userToUpdate.firstName
+    //         )
+    //     );
+
+    //     //need to update followers and following on this user and the
+    //     //user that has just been unfollowed
+    //     await this.usersDAO.updateNumFollowing(userEntity.alias, numIncrement);
+    //     await this.usersDAO.updateNumFollowers(
+    //         userToUpdate.alias,
+    //         numIncrement
+    //     );
+
+    //     return [userEntity.numFollowers, userEntity.numFollowees];
+    // }
 }
