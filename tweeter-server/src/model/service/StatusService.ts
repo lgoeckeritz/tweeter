@@ -74,13 +74,10 @@ export class StatusService extends Service {
         this.verfiyRequestData([authToken, newStatus]);
         this.authenticate(authToken.token);
 
-        //getting the user's handle
-        const userHandle = await this.authTokenDAO.getAuthTokenHandle(
-            authToken.token
-        );
+        const userHandle = newStatus.user.alias;
         const newStatusEntity = new StatusEntity(
             userHandle,
-            Date.now(),
+            newStatus.timestamp,
             newStatus.toJson()
         );
         await this.storyDAO.recordStory(newStatusEntity);
@@ -105,7 +102,7 @@ export class StatusService extends Service {
                 await this.feedDAO.addStatus(
                     new StatusEntity(
                         follow.followerHandle,
-                        Date.now(),
+                        newStatus.timestamp,
                         newStatus.toJson()
                     )
                 );
