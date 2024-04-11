@@ -141,8 +141,10 @@ export class FollowService extends Service {
         const userHandle = await this.authTokenDAO.getAuthTokenHandle(
             authToken.token
         );
+        const userToFollowEntity: UserEntity | undefined =
+            await this.usersDAO.getUser(userToFollow.alias);
         const userEntity = await this.usersDAO.getUser(userHandle);
-        if (userEntity === undefined) {
+        if (userEntity === undefined || userToFollowEntity == undefined) {
             throw new Error("[Server Error] couldn't find user");
         }
         await this.followsDAO.putFollow(
@@ -158,7 +160,11 @@ export class FollowService extends Service {
         await this.usersDAO.updateNumFollowing(userEntity.alias, 1);
         await this.usersDAO.updateNumFollowers(userToFollow.alias, 1);
 
-        return [userEntity.numFollowers, userEntity.numFollowees];
+        //this should return the numfollowers and followees of the userToFollow instead
+        return [
+            userToFollowEntity.numFollowers,
+            userToFollowEntity.numFollowees,
+        ];
     }
 
     public async unfollow(
@@ -174,7 +180,10 @@ export class FollowService extends Service {
         const userEntity: UserEntity | undefined = await this.usersDAO.getUser(
             userHandle
         );
-        if (userEntity === undefined) {
+        const userToUnFollowEntity: UserEntity | undefined =
+            await this.usersDAO.getUser(userToUnfollow.alias);
+
+        if (userEntity === undefined || userToUnFollowEntity === undefined) {
             throw new Error("[Server Error] couldn't find user");
         }
         await this.followsDAO.deleteFollow(
@@ -191,7 +200,11 @@ export class FollowService extends Service {
         await this.usersDAO.updateNumFollowing(userEntity.alias, -1);
         await this.usersDAO.updateNumFollowers(userToUnfollow.alias, -1);
 
-        return [userEntity.numFollowers, userEntity.numFollowees];
+        //this should return the numfollowers and followees of the userToFollow instead
+        return [
+            userToUnFollowEntity.numFollowers,
+            userToUnFollowEntity.numFollowees,
+        ];
     }
 
     // not working yet, not sure if I need it to work
