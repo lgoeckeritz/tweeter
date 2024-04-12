@@ -14,4 +14,6 @@ logout
 postStatus
 registerLambda
 unfollow
+postUpdateFeedMessages
+updateFeeds
 '

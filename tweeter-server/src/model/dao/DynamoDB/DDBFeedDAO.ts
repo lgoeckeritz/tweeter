@@ -3,12 +3,17 @@ import { DataPage } from "../../entity/DataPage";
 import { StatusEntity } from "../../entity/StatusEntity";
 import { FeedDAO } from "../interface/FeedDAO";
 import { DDBDAO } from "./DDBDAO";
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import {
+    BatchWriteCommand,
+    DynamoDBDocumentClient,
+} from "@aws-sdk/lib-dynamodb";
 
 export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
     readonly owner_handle = "owner_handle";
     readonly time_stamp = "time_stamp";
     readonly status_json = "status_json";
+
+    readonly BATCH_SIZE = 25;
 
     constructor(client: DynamoDBDocumentClient) {
         super("feed", client);
@@ -48,6 +53,34 @@ export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
 
     async addStatus(statusEntity: StatusEntity): Promise<void> {
         await this.putItem(statusEntity);
+    }
+
+    async putBatchStatus(feedOwnerHandles: string[], status: Status) {
+        for (let i = 0; i < feedOwnerHandles.length; i += this.BATCH_SIZE) {
+            let items = [];
+            for (let j = 0; j < this.BATCH_SIZE; j++) {
+                const putItem = this.generatePutItem(
+                    new StatusEntity(
+                        feedOwnerHandles[i],
+                        status.timestamp,
+                        status.toJson()
+                    )
+                );
+                items.push({
+                    PutRequest: {
+                        Item: putItem,
+                    },
+                });
+            }
+
+            const params = {
+                RequestItems: {
+                    [this.tableName]: items,
+                },
+            };
+
+            await this.client.send(new BatchWriteCommand(params));
+        }
     }
 
     async getFeed(

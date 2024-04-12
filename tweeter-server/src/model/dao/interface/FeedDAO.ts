@@ -9,4 +9,5 @@ export interface FeedDAO {
         pageSize: number,
         lastItem: Status | null
     ): Promise<DataPage<StatusEntity>>;
+    putBatchStatus(feedOwnerHandles: string[], status: Status): Promise<void>;
 }

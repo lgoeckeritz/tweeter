@@ -82,31 +82,66 @@ export class StatusService extends Service {
         );
         await this.storyDAO.recordStory(newStatusEntity);
 
-        //pushing the status to everyone that follows this user
-        //getting the user to know how many followers there are
+        /**
+         * TODO: remove functionality after this and put it in another function for the queue to use
+         */
+
+        // //pushing the status to everyone that follows this user
+        // //getting the user to know how many followers there are
+        // const userEntity: UserEntity | undefined = await this.usersDAO.getUser(
+        //     userHandle
+        // );
+
+        // if (userEntity !== undefined) {
+        //     const numFollowers = userEntity.numFollowers;
+        //     //getting list of all followers
+        //     const followerPage = await this.followsDAO.getPageOfFollowers(
+        //         userHandle,
+        //         numFollowers,
+        //         undefined
+        //     );
+        //     //adding the status to each of the followers of the user
+        //     for (let i = 0; i < numFollowers; i++) {
+        //         const follow = followerPage.values[i];
+        //         await this.feedDAO.addStatus(
+        //             new StatusEntity(
+        //                 follow.followerHandle,
+        //                 newStatus.timestamp,
+        //                 newStatus.toJson()
+        //             )
+        //         );
+        //     }
+        // }
+    }
+
+    public async getFollowers(userHandle: string): Promise<string[]> {
         const userEntity: UserEntity | undefined = await this.usersDAO.getUser(
             userHandle
         );
 
-        if (userEntity !== undefined) {
-            const numFollowers = userEntity.numFollowers;
-            //getting list of all followers
-            const followerPage = await this.followsDAO.getPageOfFollowers(
-                userHandle,
-                numFollowers,
-                undefined
-            );
-            //adding the status to each of the followers of the user
-            for (let i = 0; i < numFollowers; i++) {
-                const follow = followerPage.values[i];
-                await this.feedDAO.addStatus(
-                    new StatusEntity(
-                        follow.followerHandle,
-                        newStatus.timestamp,
-                        newStatus.toJson()
-                    )
-                );
-            }
+        if (userEntity === undefined) {
+            throw new Error("[Server Error] Post user could not be found");
         }
+
+        const numFollowers = userEntity.numFollowers;
+        //getting list of all followers
+        const followerPage = await this.followsDAO.getPageOfFollowers(
+            userHandle,
+            numFollowers,
+            undefined
+        );
+        //adding the handles of all the followers to an array
+        const followerHandles: string[] = [];
+        followerPage.values.forEach((follow) => {
+            followerHandles.push(follow.followerHandle);
+        });
+        return followerHandles;
+    }
+    //todo: this needs to write in batches instead
+    public async postToFeeds(
+        feedOwnerHandles: string[],
+        status: Status
+    ): Promise<void> {
+        await this.feedDAO.putBatchStatus(feedOwnerHandles, status);
     }
 }
