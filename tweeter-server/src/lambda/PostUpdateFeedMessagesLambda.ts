@@ -34,7 +34,7 @@ export const handler = async function (event: any) {
             new DDBDAOFactory()
         ).getFollowers(userHandle);
 
-        //splitting up list into groups of 25 to send to the UpdateFeedQueue
+        //splitting up list into groups of 100 to send to the UpdateFeedQueue
         let sqsClient = new SQSClient();
         const sqs_url =
             "https://sqs.us-east-1.amazonaws.com/036298631532/UpdateFeedQueue";

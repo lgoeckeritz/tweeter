@@ -5,8 +5,10 @@ import { FeedDAO } from "../interface/FeedDAO";
 import { DDBDAO } from "./DDBDAO";
 import {
     BatchWriteCommand,
+    BatchWriteCommandInput,
     DynamoDBDocumentClient,
 } from "@aws-sdk/lib-dynamodb";
+import { execSync } from "child_process";
 
 export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
     readonly owner_handle = "owner_handle";
@@ -61,7 +63,7 @@ export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
             for (let j = 0; j < this.BATCH_SIZE; j++) {
                 const putItem = this.generatePutItem(
                     new StatusEntity(
-                        feedOwnerHandles[i],
+                        feedOwnerHandles[i + j],
                         status.timestamp,
                         status.toJson()
                     )
@@ -79,7 +81,30 @@ export class DDBFeedDAO extends DDBDAO<StatusEntity> implements FeedDAO {
                 },
             };
 
-            await this.client.send(new BatchWriteCommand(params));
+            let response = await this.client.send(
+                new BatchWriteCommand(params)
+            );
+
+            if (response.UnprocessedItems != undefined) {
+                let sec = 0.01;
+                while (Object.keys(response.UnprocessedItems).length > 0) {
+                    console.log(
+                        Object.keys(response.UnprocessedItems.feed).length +
+                            " unprocessed items"
+                    );
+                    //The ts-ignore with an @ in front must be as a comment in order to ignore an error for the next line for compiling.
+                    // @ts-ignore
+                    params.RequestItems = response.UnprocessedItems;
+                    execSync("sleep " + sec);
+                    if (sec < 1) sec += 0.1;
+                    response = await this.client.send(
+                        new BatchWriteCommand(params)
+                    );
+                    if (response.UnprocessedItems == undefined) {
+                        break;
+                    }
+                }
+            }
         }
     }
 
